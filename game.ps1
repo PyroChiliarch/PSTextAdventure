@@ -1,22 +1,91 @@
 #Objects
-class bufferCell
+
+class BufferCell
 {
     #Properties
     [int]$depth
     [char]$char
 
     #Constructor
-    bufferCell () {
+    BufferCell () {
         this.$depth = 0
         this.$char = '...'
     }
-    bufferCell([int]$depth, [char]$char) {
+    BufferCell([int]$depth, [char]$char) {
         $this.depth = $depth
         $this.char = $char
     }
 
 
 }
+
+
+
+
+
+
+
+
+class ViewPort
+{
+    #Contains 2 frame buffers which can be written to drawn
+    
+    #Properties
+    [int]$width
+    [int]$height
+
+    [BufferCell[,]]$frameBuffer
+    [BufferCell]$defaultValue
+
+    #Constructor
+    ViewPort ([int]$width, [int]$height, [BufferCell]$defaultValue)
+    {
+        $this.width = $width
+        $this.height = $height
+        $this.defaultValue = $defaultValue
+
+        #Create frameBuffer as 2 dimensional array
+        #Fill with empty defaultCells
+        $this.frameBuffer = New-Object 'BufferCell[,]' $width,$height
+        for ($x = 0; $x -lt $width; $x++) {
+            for ($y = 0; $y -lt $height; $y++) {
+                $this.frameBuffer[$x ,$y] = $defaultValue #$x requires space in front of it
+            }
+        }
+
+
+    }
+
+
+    #Methods
+    ClearFrameBuffer ([viewPort]$self) {
+        
+        
+        for ($x = 0; $x -lt $self.width; $x++) {
+            for ($y = 0; $y -lt $self.height; $y++) {
+                $self.frameBuffer[ $x ,$y] = $self.defaultValue
+            }
+        }
+    }
+    
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #Functions
 Function pause ($message)
@@ -42,16 +111,24 @@ Function drawViewPort ()
 
     #Create Initialis frameBuffer as 2 dimensional array
     #Fills with empty bufferCells
-    $frameBuffer = New-Object 'bufferCell[,]' $bufferWidth,$bufferHeight
+    $frameBuffer = New-Object 'BufferCell[,]' $bufferWidth,$bufferHeight
     for ($x = 0; $x -lt $bufferWidth; $x++) {
         for ($y = 0; $y -lt $bufferHeight; $y++) {
-            $frameBuffer[$x,$y] = New-Object 'bufferCell' 0,'.'
+            $frameBuffer[$x,$y] = New-Object 'BufferCell' 0,'.'
         }
     }
 
     
     Write-Output $frameBuffer[0,2].char
 }
+
+
+
+
+
+
+
+
 
 
 
@@ -82,7 +159,11 @@ $host.UI.RawUI.WindowTitle = 'Ardlinam'
 Clear-Host
 Write-Output 'Welcome to Ardlinam'
 
-drawViewPort
+#testing========================================
+[ViewPort]$port = New-Object 'ViewPort' 10,10,[BufferCell]@(New-Object 'BufferCell' 0,'.')
+Write-Output $port.frameBuffer[0,0].char
+
+
 
 $Input = Read-Host -Prompt 'Please enter your name.'
 $PlayerName = $Input
@@ -94,10 +175,6 @@ Write-Output 'Please read the below instructions'
 Write-Output 'type "help" to list available commands'
 Write-Output "commands are not case sensitive `n"
 pause('Press any key to begin your adventure!')
-
-
-
-
 
 
 
