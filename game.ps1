@@ -1,3 +1,23 @@
+#Objects
+class bufferCell
+{
+    #Properties
+    [int]$depth
+    [char]$char
+
+    #Constructor
+    bufferCell () {
+        this.$depth = 0
+        this.$char = '...'
+    }
+    bufferCell([int]$depth, [char]$char) {
+        $this.depth = $depth
+        $this.char = $char
+    }
+
+
+}
+
 #Functions
 Function pause ($message)
 {
@@ -14,12 +34,31 @@ Function pause ($message)
     }
 }
 
-Function drawMap ($px, $py)
+
+Function drawViewPort ()
 {
-    $mapWidth = 10
-    $mapHeight = 10
-    for ()
+    $bufferHeight = 5
+    $bufferWidth = 10
+
+    #Create Initialis frameBuffer as 2 dimensional array
+    #Fills with empty bufferCells
+    $frameBuffer = New-Object 'bufferCell[,]' $bufferWidth,$bufferHeight
+    for ($x = 0; $x -lt $bufferWidth; $x++) {
+        for ($y = 0; $y -lt $bufferHeight; $y++) {
+            $frameBuffer[$x,$y] = New-Object 'bufferCell' 0,'.'
+        }
+    }
+
+    
+    Write-Output $frameBuffer[0,2].char
 }
+
+
+
+
+
+
+
 
 #Initialise Variables
 $PlayerName = 'none'
@@ -27,15 +66,28 @@ $PlayerMoney = 0
 $PlayerX = 0
 $PlayerY = 0
 
+
+$mapHeight = 100
+$mapWidth = 100
+$mapFloor = '.'
+
+$viewPortHeight = 10
+$viewPortWidth = 10
+
 #Prepare
 Clear-Host
 $host.UI.RawUI.WindowTitle = 'Ardlinam'
 
+#Get Player Name
 Clear-Host
 Write-Output 'Welcome to Ardlinam'
+
+drawViewPort
+
 $Input = Read-Host -Prompt 'Please enter your name.'
 $PlayerName = $Input
 
+#Instructions
 Clear-Host
 Write-Output "Welcome to Ardlinam $PlayerName `n"
 Write-Output 'Please read the below instructions'
