@@ -58,18 +58,37 @@ class ViewPort
 
 
     #Methods
-    ClearFrameBuffer ([viewPort]$self) {
-        
-        
+    [void]ClearFrameBuffer ([viewPort]$self) {
         for ($x = 0; $x -lt $self.width; $x++) {
             for ($y = 0; $y -lt $self.height; $y++) {
-                $self.frameBuffer[ $x ,$y] = $self.defaultValue
+                $self.frameBuffer[$x ,$y] = $self.defaultValue
             }
         }
     }
+
     
+    [void]DrawFrameBuffer () {
+        #Draw frame buffer as is directly to screen at current position
 
+        #Array with string for each row of frame buffer
+        [string[]]$bufferRows = New-Object 'string[]' $this.height
+        
+        #Iterate each row/string
+        for ($y = 0; $y -lt $this.height; $y++) {
+            $bufferRows[$y] = ""
+            #Fill row/string with char/cell data
+            for ($x = 0; $x -lt $this.width; $x++) {
+                $bufferRows[$y] += $this.frameBuffer[$x,$y].char
+            }
+        }
 
+        #Write each string to screen
+        for ($y = 0; $y -lt $this.height; $y++) {
+            Write-Host $bufferRows[$y]
+        }
+        
+    }
+    
 }
 
 
@@ -104,68 +123,42 @@ Function pause ($message)
 }
 
 
-Function drawViewPort ()
-{
-    $bufferHeight = 5
-    $bufferWidth = 10
-
-    #Create Initialis frameBuffer as 2 dimensional array
-    #Fills with empty bufferCells
-    $frameBuffer = New-Object 'BufferCell[,]' $bufferWidth,$bufferHeight
-    for ($x = 0; $x -lt $bufferWidth; $x++) {
-        for ($y = 0; $y -lt $bufferHeight; $y++) {
-            $frameBuffer[$x,$y] = New-Object 'BufferCell' 0,'.'
-        }
-    }
-
-    
-    Write-Output $frameBuffer[0,2].char
-}
 
 
 
 
 
+######################Initialise Variables
 
 
-
-
-
-
-
-
-
-
-
-#Initialise Variables
-$PlayerName = 'none'
-$PlayerMoney = 0
-$PlayerX = 0
-$PlayerY = 0
-
-
-$mapHeight = 100
-$mapWidth = 100
-$mapFloor = '.'
-
+#Viewport
 $viewPortHeight = 10
 $viewPortWidth = 10
+[BufferCell]$defaultBufferCell = New-Object 'BufferCell' 0,'.'
+[ViewPort]$viewPort = New-Object 'ViewPort' $viewPortWidth,$viewPortHeight,$defaultBufferCell
+
+
 
 #Prepare
 Clear-Host
 $host.UI.RawUI.WindowTitle = 'Ardlinam'
 
-#Get Player Name
-Clear-Host
-Write-Output 'Welcome to Ardlinam'
+
+#Draw World
+
+
 
 #testing========================================
-[ViewPort]$port = New-Object 'ViewPort' 10,10,[BufferCell]@(New-Object 'BufferCell' 0,'.')
-Write-Output $port.frameBuffer[0,0].char
+
+pause('End of Program, Press any key to continue...')
+#Write-Output $viewPort.frameBuffer[0,2].char
+
+$viewPort.DrawFrameBuffer()
+#Write-Output ("" + $port.frameBuffer[0,1].char)
 
 
 
-$Input = Read-Host -Prompt 'Please enter your name.'
+<#$Input = Read-Host -Prompt 'Please enter your name.'
 $PlayerName = $Input
 
 #Instructions
@@ -179,5 +172,5 @@ pause('Press any key to begin your adventure!')
 
 
 
-
+#>
 pause('End of Program, Press any key to continue...')
