@@ -1,28 +1,32 @@
-#Objects
 
-class BufferCell {
+
+#Includes
+using namespace System.Collections.Generic
+#https://docs.microsoft.com/en-us/dotnet/api/system.collections?view=netframework-4.8
+using namespace System.Management.Automation.Host
+#https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshostrawuserinterface?view=powershellsdk-7.0.0
+
+#Class============
+class FrameBufferCell {
     #Properties
     [int]$depth
     [char]$char
 
     #Constructor
-    BufferCell () {
+    FrameBufferCell () {
         this.$depth = 255
         this.$char = '.'
     }
-    BufferCell([int]$depth, [char]$char) {
+    FrameBufferCell([int]$depth, [char]$char) {
         $this.depth = $depth
         $this.char = $char
     }
-    BufferCell([BufferCell]$oldCell) {
+    FrameBufferCell([FrameBufferCell]$oldCell) {
         $this.depth = $oldCell.depth
         $this.depth = $oldCell.depth
-
     }
+    
 }
-
-
-
 
 
 class ViewPort {
@@ -32,25 +36,27 @@ class ViewPort {
     [int]$width
     [int]$height
 
+    [Coordinates]$position
+
     #Frame buffer that contains changes
-    [BufferCell[, ]]$frameBuffer
-    [BufferCell]$defaultCell
+    [FrameBufferCell[, ]]$frameBuffer
+    [FrameBufferCell]$defaultCell
 
     #Screen Buffer contains the last drawn screen
-    [BufferCell[, ]]$screenBuffer
+    [FrameBufferCell[, ]]$screenBuffer
 
     #Constructor
-    ViewPort ([int]$width, [int]$height, [BufferCell]$defaultCell) {
+    ViewPort ([int]$width, [int]$height, [FrameBufferCell]$defaultCell) {
         $this.width = $width
         $this.height = $height
         $this.defaultCell = $defaultCell
 
         #Create frameBuffer as 2 dimensional array
         #Fill with empty defaultCells
-        $this.frameBuffer = New-Object 'BufferCell[,]' $width, $height
+        $this.frameBuffer = New-Object 'FrameBufferCell[,]' $width, $height
         for ($x = 0; $x -lt $width; $x++) {
             for ($y = 0; $y -lt $height; $y++) {
-                $this.frameBuffer[$x , $y] = [BufferCell]::new($defaultCell.depth, $defaultCell.char)
+                $this.frameBuffer[$x , $y] = [FrameBufferCell]::new($defaultCell.depth, $defaultCell.char)
             }
         }
     }
@@ -60,7 +66,7 @@ class ViewPort {
     [void] ClearFrameBuffer () {
         for ($x = 0; $x -lt $this.width; $x++) {
             for ($y = 0; $y -lt $this.height; $y++) {
-                $this.frameBuffer[$x , $y] = [BufferCell]::new($this.defaultCell.depth, $this.defaultCell.char)
+                $this.frameBuffer[$x , $y] = [FrameBufferCell]::new($this.defaultCell.depth, $this.defaultCell.char)
                 
             }
         }
@@ -108,8 +114,6 @@ class ViewPort {
 }
 
 
-
-
 class Player {
     [int]$posX = 0
     [int]$posY = 0
@@ -135,7 +139,7 @@ class Input {
         
 
         while (1 -eq 1) {
-            [System.Management.Automation.Host.KeyInfo]$userInput = $Global:Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+            [KeyInfo]$userInput = $Global:Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 
             if ($userInput.VirtualKeyCode -eq "13") {
                 return $fullCommand
@@ -151,8 +155,6 @@ class Input {
 }
 
 
-
-
 class GameConsole {
     [string[]]$consoleHistory
 
@@ -165,10 +167,10 @@ class GameConsole {
         $this.consoleHistory = ,$entry + $shortenedLog
     }
 
-    [void] DrawLog ($xPos, $yPos) {
+    [void] DrawLog ([Coordinates]$position) {
         #Move Cursor to Draw location
         $oldPos = $Global:Host.UI.RawUI.CursorPosition
-        $Global:Host.UI.RawUI.CursorPosition = [System.Management.Automation.Host.Coordinates]::new($xPos,$yPos)
+        $Global:Host.UI.RawUI.CursorPosition = [Coordinates]::new($position.X, $position.Y)
         
         #Draw Log
         for ($i = 0; $i -lt $this.consoleHistory.Length; $i++) {
@@ -182,9 +184,33 @@ class GameConsole {
 }
 
 
+class Voxel {
+    [char]$voxelData
+
+    Voxel () {
+        $this.voxelData = '-'
+    }
+}
 
 
+class Chunk {
 
+    [Voxel[,]]$chunkData
+
+    Chunk () {
+        $this.chunkData = [Voxel[,]]::new()
+    }
+}
+
+
+class World {
+    
+
+
+    World () {
+
+    }
+}
 
 
 #Functions
@@ -204,8 +230,6 @@ Function pause ($message) {
 
 
 
-
-
 ######################Initialise Variables
 
 #GameInfo Vars
@@ -219,18 +243,24 @@ Function pause ($message) {
 [Input]$gameInput = [Input]::new()
 
 #Viewport Vars
-[int]$viewPortHeight = 10
-[int]$viewPortWidth = 10
-[BufferCell]$defaultBufferCell = New-Object 'BufferCell' 255, '.'
-[ViewPort]$viewPort = New-Object 'ViewPort' $viewPortWidth, $viewPortHeight, $defaultBufferCell
+[int]$viewPortHeight = 20
+[int]$viewPortWidth = $host.UI.RawUI.BufferSize.Width
+[FrameBufferCell]$defaultFrameBufferCell = New-Object 'FrameBufferCell' 255, '.'
+[ViewPort]$viewPort = New-Object 'ViewPort' $viewPortWidth, $viewPortHeight, $defaultFrameBufferCell
 
 #Console Vars
 [GameConsole]$gameConsole = [GameConsole]::new(5)
 
 #Prepare
 $host.UI.RawUI.WindowTitle = 'Ardlinam'
-pause('Start of Program, Press any key to continue...')
+[Console]::CursorVisible = $false
 
+<#Write-Host $host.UI.RawUI.MaxPhysicalWindowSize #192.63
+$host.UI.RawUI.BufferSize = [Size]::new(192,63)
+$host.UI.RawUI.WindowSize = [Size]::new(192,63)
+$host.UI.RawUI.CursorPosition = [Coordinates]::new(191,62)
+Write-Host 'X'#>
+pause('Start of Program, Press any key to continue...')
 
 
 
@@ -251,19 +281,20 @@ while ($stopGame -eq $false) {
     $viewPort.DrawParticle(2, 5, 5, 'M')
 
     #Draw viewport to screen
-    [Console]::CursorVisible = $false
     Clear-Host
     $viewPort.DrawFrameBuffer()
-    [Console]::CursorVisible = $true
 
     #Draw Console
-    $gameConsole.DrawLog($host.UI.RawUI.CursorPosition.X, ($host.UI.RawUI.CursorPosition.Y + 1))
+    [Coordinates]$drawConsolePosition = [Coordinates]::new($host.UI.RawUI.CursorPosition.X, $host.UI.RawUI.CursorPosition.Y + 1)
+    $gameConsole.DrawLog($drawConsolePosition)
 
     
 
     #Gather Player input
     #Loop until valid input to avoid flicker
     while ($true) {
+
+        $host.UI.RawUI.FlushInputBuffer() #Stop Movement after key release, Input can build up if held
         $inputKey = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown').VirtualKeyCode
 
         if ($inputKey -eq '40') {
@@ -297,14 +328,25 @@ while ($stopGame -eq $false) {
     
         if ($inputKey -eq '13') {
             #Enter
-            [string]$consoleInput = $gameInput.GetInputString()
-            $gameConsole.Log($consoleInput)
+            [Console]::CursorVisible = $true
+            [string]$consoleInput = $gameInput.GetInputString().ToLower()
+            
+            #dont write logs if an empty command is given
+            if ($consoleInput -ne "") {
+                $gameConsole.Log(" - " + $consoleInput)
+            }
+            
             
             if ($consoleInput -eq "exit") {
                 $stopGame = $true
                 Write-Host ""
             }
 
+            if ($consoleInput -eq "help") {
+                $gameConsole.Log("No help available at this time")
+            }
+
+            [Console]::CursorVisible = $false
             break
         }
     }
@@ -317,5 +359,5 @@ while ($stopGame -eq $false) {
 } 
 
 
-
+Clear-Host
 pause('End of Program, Press any key to continue...')
