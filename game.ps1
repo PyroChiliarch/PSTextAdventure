@@ -95,8 +95,10 @@ class ViewPort {
         #Out of bounds check
         if (($xPos -ge 0) -and ($xPos -lt $this.width)) {
             if (($yPos -ge 0) -and ($yPos -lt $this.height)) {
-                $this.frameBuffer[$xPos, $yPos].depth = $depth
-                $this.frameBuffer[$xPos, $yPos].char = $char
+                if ($this.frameBuffer[$xPos, $yPos].depth -gt $depth) {
+                    $this.frameBuffer[$xPos, $yPos].depth = $depth
+                    $this.frameBuffer[$xPos, $yPos].char = $char
+                }
             }
         }
         
@@ -229,16 +231,30 @@ Function pause ($message) {
 $host.UI.RawUI.WindowTitle = 'Ardlinam'
 pause('Start of Program, Press any key to continue...')
 
+
+
+
 #Game Loop
 while ($stopGame -eq $false) {
     
     #Prepare viewport
     $viewPort.ClearFrameBuffer()
     $viewPort.DrawParticle($player.posX, $player.posY, 10, 'O')
+    #Draw on Background for testing
+    $viewPort.DrawParticle(0, 0, 20, 'X')
+    $viewPort.DrawParticle(5, 3, 20, 'X')
+    $viewPort.DrawParticle(3, 7, 20, 'X')
+    $viewPort.DrawParticle(7, 8, 20, 'X')
+
+    $viewPort.DrawParticle(3, 2, 5, 'M')
+    $viewPort.DrawParticle(9, 0, 5, 'M')
+    $viewPort.DrawParticle(2, 5, 5, 'M')
 
     #Draw viewport to screen
+    [Console]::CursorVisible = $false
     Clear-Host
     $viewPort.DrawFrameBuffer()
+    [Console]::CursorVisible = $true
 
     #Draw Console
     $gameConsole.DrawLog($host.UI.RawUI.CursorPosition.X, ($host.UI.RawUI.CursorPosition.Y + 1))
@@ -286,6 +302,7 @@ while ($stopGame -eq $false) {
             
             if ($consoleInput -eq "exit") {
                 $stopGame = $true
+                Write-Host ""
             }
 
             break
