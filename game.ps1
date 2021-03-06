@@ -200,15 +200,16 @@ class Chunk {
     Chunk () {
         $this.chunkData = [Voxel[,]]::new()
     }
+
 }
 
 
 class World {
     
-
+    [Dictionary[Coordinates,Chunk]]$chunkData
 
     World () {
-
+        $this.chunkData = [Dictionary[Coordinates,Chunk]]::new()
     }
 }
 
