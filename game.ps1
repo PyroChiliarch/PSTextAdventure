@@ -15,8 +15,11 @@ class BufferCell
         $this.depth = $depth
         $this.char = $char
     }
+    BufferCell([BufferCell]$oldCell) {
+        $this.depth = $oldCell.depth
+        $this.depth = $oldCell.depth
 
-
+    }
 }
 
 class Sprite
@@ -50,28 +53,26 @@ class ViewPort
 
     #Frame buffer that contains changes
     [BufferCell[,]]$frameBuffer
-    [BufferCell]$defaultValue
+    [BufferCell]$defaultCell
 
     #Screen Buffer contains the last drawn screen
     [BufferCell[,]]$screenBuffer
 
     #Constructor
-    ViewPort ([int]$width, [int]$height, [BufferCell]$defaultValue)
+    ViewPort ([int]$width, [int]$height, [BufferCell]$defaultCell)
     {
         $this.width = $width
         $this.height = $height
-        $this.defaultValue = $defaultValue
+        $this.defaultCell = $defaultCell
 
         #Create frameBuffer as 2 dimensional array
         #Fill with empty defaultCells
         $this.frameBuffer = New-Object 'BufferCell[,]' $width,$height
         for ($x = 0; $x -lt $width; $x++) {
             for ($y = 0; $y -lt $height; $y++) {
-                $this.frameBuffer[$x ,$y] = $defaultValue #$x requires space in front of it
+                $this.frameBuffer[$x ,$y] = [BufferCell]::new($defaultCell.depth, $defaultCell.char)
             }
         }
-
-
     }
 
 
@@ -79,7 +80,8 @@ class ViewPort
     [void] ClearFrameBuffer ([viewPort]$self) {
         for ($x = 0; $x -lt $self.width; $x++) {
             for ($y = 0; $y -lt $self.height; $y++) {
-                $self.frameBuffer[$x ,$y] = $self.defaultValue
+                $this.frameBuffer[$x ,$y] = [BufferCell]::new($this.defaultCell.depth, $this.defaultCell.char)
+                
             }
         }
     }
@@ -109,29 +111,12 @@ class ViewPort
         }
     }
 
-    [void] DrawSprite ([int]$xPos, [int]$yPos, [int]$depth ,[Sprite]$sprite) {
-        #Start and end points for drawing asjusted for origin
-        $adjMaxY = ($sprite.height + $sprite.yOrigin)
-        $adjMaxX = ($sprite.width + $sprite.xOrigin)
-        $adjY = $yPos + $sprite.yOrigin
-        $adjX = $xPos + $sprite.xOrigin
-
-        #Iterate over each cell in area covered by sprite
-        for ($y = $adjY; $y -lt ($yPos + $adjMaxY); $y++) {
-            for ($x = $adjX; $x -lt ($xPos + $adjMaxX); $x++) {
-                #Drop if out of range
-                if (1) {
-                    #Check depth
-                    if ($depth -lt $this.frameBuffer[$x,$y].depth) {
-                        $this.frameBuffer[$x,$y].depth = $depth
-                        $cellX = $x - $adjX
-                        $cellY = $y - $adjY
-                        $this.frameBuffer[$x,$y].char = $sprite.image[$cellX, $cellY]
-                    }
-                }
-
-            }
-        }
+    [void] DrawParticle ([int]$xPos, [int]$yPos, [int]$depth ,[char]$char) {
+        
+        $this.frameBuffer[$xPos,$yPos].depth = $depth
+        $this.frameBuffer[$xPos,$yPos].char = $char
+        Write-Host "Drawing Particle $($xPos), $($yPos), $($char)"
+        
     }
     
 }
@@ -197,16 +182,18 @@ $host.UI.RawUI.WindowTitle = 'Ardlinam'
 
 pause('Start of Program, Press any key to continue...')
 #Write-Output $viewPort.frameBuffer[0,2].char
-$image = New-Object 'char[,]' 2,2
+<#$image = New-Object 'char[,]' 2,2
 
 $image[0,0] = 'a'
 $image[1,0] = 'b'
 $image[0,1] = 'c'
 $image[1,1] = 'd'
 
-$sprite = New-Object 'Sprite' 2,2,0,0,$image
+$sprite = New-Object 'Sprite' 2,2,0,0,$image#>
 
-$viewPort.DrawSprite(0,0,10,$sprite)
+Write-Host $viewPort.frameBuffer[0,0].char
+$viewPort.DrawParticle(1,1,10,'a')
+Write-Host $viewPort.frameBuffer[0,0].char
 
 $viewPort.DrawFrameBuffer()
 #Write-Output ("" + $port.frameBuffer[0,1].char)
