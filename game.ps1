@@ -62,6 +62,18 @@ class ViewPort {
     }
 
 
+    [void] DrawTerrain ([World]$gameWorld) {
+        #Draw terrain from worl to viewport
+        for ($x = 0; $x -lt $this.width; $x++) {
+            for ($y = 0; $y -lt $this.height; $y++) {
+                $this.frameBuffer[$x, $y].char = $gameWorld.GetVoxel($x, $y).voxelData
+                $this.frameBuffer[$x, $y].depth = 255
+            }
+        }
+
+    } 
+
+
     #Methods
     [void] ClearFrameBuffer () {
         for ($x = 0; $x -lt $this.width; $x++) {
@@ -184,21 +196,34 @@ class GameConsole {
 }
 
 
-class Voxel {
+class TerrainVoxel {
     [char]$voxelData
 
-    Voxel () {
-        $this.voxelData = '-'
+    TerrainVoxel ($xPos, $yPos) {
+        if (($xPos % 2 -eq 0) -and ($yPos % 2 -eq 0)) {
+            $this.voxelData = ','
+        } else {
+            $this.voxelData = '.'
+        }
+        
     }
 }
 
 
-class Chunk {
+class TerrainChunk {
 
-    [Voxel[,]]$chunkData
+    [TerrainVoxel[,]]$voxelData
 
-    Chunk () {
-        $this.chunkData = [Voxel[,]]::new()
+    TerrainChunk ($chunkSize) {
+        $this.voxelData = [TerrainVoxel[,]]::new($chunkSize,$chunkSize)
+        
+        for ($x = 0; $x -lt $chunkSize; $x++) {
+            for ($y = 0; $y -lt $chunkSize; $y++) {
+                
+                [TerrainVoxel]$newVoxel = [TerrainVoxel]::new($x, $y)
+                $this.voxelData[$x, $y] = $newVoxel
+            }
+        }
     }
 
 }
@@ -206,10 +231,36 @@ class Chunk {
 
 class World {
     
-    [Dictionary[Coordinates,Chunk]]$chunkData
+    [Dictionary[Coordinates,TerrainChunk]]$chunkData
+    [int]$chunkSize
 
-    World () {
-        $this.chunkData = [Dictionary[Coordinates,Chunk]]::new()
+    World ([int]$chunkSize) {
+        $this.chunkData = [Dictionary[Coordinates,TerrainChunk]]::new()
+        $this.chunkSize = $chunkSize
+    }
+
+    [TerrainVoxel] GetVoxel ([int]$xPos, [int]$yPos) {
+        #Get Chunk position
+        $chunkX = [int]([Math]::Floor([float]$xPos / [float]$this.chunkSize))
+        $chunkY = [int]([Math]::Floor([float]$yPos / [float]$this.chunkSize))
+        [Coordinates]$chunkPos = [Coordinates]::new($chunkX, $chunkY)
+
+        #Get Voxel position in chunk
+        $relVoxelX = $xPos % $this.chunkSize
+        $relVoxelY = $yPos % $this.chunkSize
+
+        #Build chunk if its null
+        if ($null -eq $this.chunkData[$chunkPos]) {
+            [TerrainChunk]$newChunk = [TerrainChunk]::new($this.chunkSize)
+            $this.chunkData.Add($chunkPos, $newChunk)
+        }
+
+        #Get Chunk and voxel
+        [TerrainChunk]$chunk = $this.chunkData[$chunkPos]
+        [TerrainVoxel]$voxel = $chunk.voxelData[$relVoxelX, $relVoxelY]
+
+        #Return voxel
+        return $voxel
     }
 }
 
@@ -245,23 +296,29 @@ Function pause ($message) {
 
 #Viewport Vars
 [int]$viewPortHeight = 20
-[int]$viewPortWidth = $host.UI.RawUI.BufferSize.Width
+[int]$viewPortWidth = 30
 [FrameBufferCell]$defaultFrameBufferCell = New-Object 'FrameBufferCell' 255, '.'
 [ViewPort]$viewPort = New-Object 'ViewPort' $viewPortWidth, $viewPortHeight, $defaultFrameBufferCell
 
 #Console Vars
 [GameConsole]$gameConsole = [GameConsole]::new(5)
 
+#World Vars
+[World]$gameWorld = [World]::new(10)
+
 #Prepare
 $host.UI.RawUI.WindowTitle = 'Ardlinam'
 [Console]::CursorVisible = $false
 
-<#Write-Host $host.UI.RawUI.MaxPhysicalWindowSize #192.63
-$host.UI.RawUI.BufferSize = [Size]::new(192,63)
-$host.UI.RawUI.WindowSize = [Size]::new(192,63)
-$host.UI.RawUI.CursorPosition = [Coordinates]::new(191,62)
-Write-Host 'X'#>
+
+
+
+
 pause('Start of Program, Press any key to continue...')
+
+
+
+
 
 
 
@@ -270,6 +327,7 @@ while ($stopGame -eq $false) {
     
     #Prepare viewport
     $viewPort.ClearFrameBuffer()
+    $viewPort.DrawTerrain($gameWorld)
     $viewPort.DrawParticle($player.posX, $player.posY, 10, 'O')
     #Draw on Background for testing
     $viewPort.DrawParticle(0, 0, 20, 'X')
@@ -358,6 +416,7 @@ while ($stopGame -eq $false) {
     $gameStep++
     #pause('End of Step, Press any key to continue...')
 } 
+
 
 
 Clear-Host
