@@ -49,10 +49,8 @@ class ViewPort {
     [FrameBufferCell[, ]]$screenBuffer
 
     #Constructor
-    ViewPort ([int]$width, [int]$height,[int]$posX, [int]$posY, [FrameBufferCell]$defaultCell) {
+    ViewPort ([int]$width, [int]$height, [FrameBufferCell]$defaultCell) {
         
-        $this.posX = $posX
-        $this.posY = $posY
         
         $this.width = $width
         $this.height = $height
