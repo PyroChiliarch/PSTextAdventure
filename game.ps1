@@ -33,11 +33,13 @@ class ViewPort {
     #Contains 2 frame buffers which can be written to drawn
     
     #Properties
+    [int]$posX
+    [int]$posY
+
     [int]$width
     [int]$height
 
-    [int]$posX
-    [int]$posY
+    
 
     [Coordinates]$position
 
@@ -49,9 +51,12 @@ class ViewPort {
     [FrameBufferCell[, ]]$screenBuffer
 
     #Constructor
-    ViewPort ([int]$width, [int]$height, [FrameBufferCell]$defaultCell) {
+    ViewPort ([int]$posX, [int]$posY, [int]$width, [int]$height, [FrameBufferCell]$defaultCell) {
         
         
+
+        $this.posX = $posX
+        $this.posY = $posY
         $this.width = $width
         $this.height = $height
         $this.defaultCell = $defaultCell
@@ -70,10 +75,10 @@ class ViewPort {
 
 
     [void] DrawTerrain ([World]$gameWorld) {
-        #Draw terrain from worl to viewport
+        #Draw terrain from world to viewport
         for ($x = $this.posX; $x -lt ($this.width + $this.posX); $x++) {
             for ($y = $this.posY; $y -lt ($this.height + $this.posY); $y++) {
-                $this.frameBuffer[$x, $y].char = $gameWorld.GetVoxel($x, $y).voxelData
+                $this.frameBuffer[$x, $y].char = $gameWorld.GetVoxel($x - $this.posX, $y - $this.posY).voxelData
                 $this.frameBuffer[$x, $y].depth = 255
             }
         }
@@ -216,6 +221,8 @@ class TerrainVoxel {
         if ((Get-Random -Maximum 20) -lt 1) {
             $this.voxelData = [char]0x2663
         }
+
+        $this.voxelData = 'x'
         
     }
 }
@@ -306,8 +313,8 @@ Function pause ($message) {
 #Viewport Vars
 [int]$viewPortHeight = 20
 [int]$viewPortWidth = 30
-[FrameBufferCell]$defaultFrameBufferCell = New-Object 'FrameBufferCell' 255, '.'
-[ViewPort]$viewPort = New-Object 'ViewPort' $viewPortWidth, $viewPortHeight, $defaultFrameBufferCell
+[FrameBufferCell]$defaultFrameBufferCell = New-Object 'FrameBufferCell' 255,'.'
+[ViewPort]$viewPort = [ViewPort]::new(0, 0, $viewPortWidth, $viewPortHeight, $defaultFrameBufferCell)
 
 #Console Vars
 [GameConsole]$gameConsole = [GameConsole]::new(5)
@@ -320,7 +327,7 @@ $host.UI.RawUI.WindowTitle = 'Ardlinam'
 [Console]::CursorVisible = $false
 
 
-
+Write-Host $gameWorld.GetVoxel(0, 0).voxelData
 pause('Start of Program, Press any key to continue...')
 
 
@@ -376,6 +383,31 @@ while ($stopGame -eq $false) {
             $player.posX -= 1
             break
         }
+
+        if ($inputKey -eq '65') {
+            #A
+            $viewPort.posX += 1
+            break
+        }
+
+        if ($inputKey -eq '68') {
+            #D
+            $viewPort.posX -= 1
+            break
+        }
+
+        if ($inputKey -eq '87') {
+            #W
+            $viewPort.posY += 1
+            break
+        }
+        
+        if ($inputKey -eq '83') {
+            #S
+            $viewPort.posY -= 1
+            break
+        }
+
     
         if ($inputKey -eq '27') {
             #Esc
