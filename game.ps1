@@ -36,6 +36,9 @@ class ViewPort {
     [int]$width
     [int]$height
 
+    [int]$posX
+    [int]$posY
+
     [Coordinates]$position
 
     #Frame buffer that contains changes
@@ -46,10 +49,16 @@ class ViewPort {
     [FrameBufferCell[, ]]$screenBuffer
 
     #Constructor
-    ViewPort ([int]$width, [int]$height, [FrameBufferCell]$defaultCell) {
+    ViewPort ([int]$width, [int]$height,[int]$posX, [int]$posY, [FrameBufferCell]$defaultCell) {
+        
+        $this.posX = $posX
+        $this.posY = $posY
+        
         $this.width = $width
         $this.height = $height
         $this.defaultCell = $defaultCell
+        
+        
 
         #Create frameBuffer as 2 dimensional array
         #Fill with empty defaultCells
@@ -64,8 +73,8 @@ class ViewPort {
 
     [void] DrawTerrain ([World]$gameWorld) {
         #Draw terrain from worl to viewport
-        for ($x = 0; $x -lt $this.width; $x++) {
-            for ($y = 0; $y -lt $this.height; $y++) {
+        for ($x = $this.posX; $x -lt ($this.width + $this.posX); $x++) {
+            for ($y = $this.posY; $y -lt ($this.height + $this.posY); $y++) {
                 $this.frameBuffer[$x, $y].char = $gameWorld.GetVoxel($x, $y).voxelData
                 $this.frameBuffer[$x, $y].depth = 255
             }
@@ -200,10 +209,14 @@ class TerrainVoxel {
     [char]$voxelData
 
     TerrainVoxel ($xPos, $yPos) {
-        if (($xPos % 2 -eq 0) -and ($yPos % 2 -eq 0)) {
+        if ((Get-Random -Maximum 20) -lt 15) {
             $this.voxelData = ','
         } else {
             $this.voxelData = '.'
+        }
+
+        if ((Get-Random -Maximum 20) -lt 1) {
+            $this.voxelData = [char]0x2663
         }
         
     }
@@ -280,8 +293,6 @@ Function pause ($message) {
 
 
 
-
-
 ######################Initialise Variables
 
 #GameInfo Vars
@@ -312,8 +323,6 @@ $host.UI.RawUI.WindowTitle = 'Ardlinam'
 
 
 
-
-
 pause('Start of Program, Press any key to continue...')
 
 
@@ -329,15 +338,6 @@ while ($stopGame -eq $false) {
     $viewPort.ClearFrameBuffer()
     $viewPort.DrawTerrain($gameWorld)
     $viewPort.DrawParticle($player.posX, $player.posY, 10, 'O')
-    #Draw on Background for testing
-    $viewPort.DrawParticle(0, 0, 20, 'X')
-    $viewPort.DrawParticle(5, 3, 20, 'X')
-    $viewPort.DrawParticle(3, 7, 20, 'X')
-    $viewPort.DrawParticle(7, 8, 20, 'X')
-
-    $viewPort.DrawParticle(3, 2, 5, 'M')
-    $viewPort.DrawParticle(9, 0, 5, 'M')
-    $viewPort.DrawParticle(2, 5, 5, 'M')
 
     #Draw viewport to screen
     Clear-Host
