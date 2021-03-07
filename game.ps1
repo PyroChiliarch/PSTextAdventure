@@ -76,9 +76,9 @@ class ViewPort {
 
     [void] DrawTerrain ([World]$gameWorld) {
         #Draw terrain from world to viewport
-        for ($x = $this.posX; $x -lt ($this.width + $this.posX); $x++) {
-            for ($y = $this.posY; $y -lt ($this.height + $this.posY); $y++) {
-                $this.frameBuffer[$x, $y].char = $gameWorld.GetVoxel($x - $this.posX, $y - $this.posY).voxelData
+        for ($x = 0; $x -lt ($this.width); $x++) {
+            for ($y = 0; $y -lt ($this.height); $y++) {
+                $this.frameBuffer[$x, $y].char = $gameWorld.GetVoxel($x + $this.posX, $y + $this.posY).voxelData
                 $this.frameBuffer[$x, $y].depth = 255
             }
         }
@@ -222,7 +222,7 @@ class TerrainVoxel {
             $this.voxelData = [char]0x2663
         }
 
-        $this.voxelData = 'x'
+        #$this.voxelData = 'x'
         
     }
 }
@@ -327,7 +327,7 @@ $host.UI.RawUI.WindowTitle = 'Ardlinam'
 [Console]::CursorVisible = $false
 
 
-Write-Host $gameWorld.GetVoxel(0, 0).voxelData
+#Write-Host $gameWorld.GetVoxel(-1, -200).voxelData
 pause('Start of Program, Press any key to continue...')
 
 
@@ -342,7 +342,8 @@ while ($stopGame -eq $false) {
     #Prepare viewport
     $viewPort.ClearFrameBuffer()
     $viewPort.DrawTerrain($gameWorld)
-    $viewPort.DrawParticle($player.posX, $player.posY, 10, 'O')
+    #pause("asdf")
+    $viewPort.DrawParticle($player.posX, $player.posY, 10, 'X')
 
     #Draw viewport to screen
     Clear-Host
@@ -386,25 +387,25 @@ while ($stopGame -eq $false) {
 
         if ($inputKey -eq '65') {
             #A
-            $viewPort.posX += 1
+            $viewPort.posX -= 1
             break
         }
 
         if ($inputKey -eq '68') {
             #D
-            $viewPort.posX -= 1
+            $viewPort.posX += 1
             break
         }
 
         if ($inputKey -eq '87') {
             #W
-            $viewPort.posY += 1
+            $viewPort.posY -= 1
             break
         }
         
         if ($inputKey -eq '83') {
             #S
-            $viewPort.posY -= 1
+            $viewPort.posY += 1
             break
         }
 
