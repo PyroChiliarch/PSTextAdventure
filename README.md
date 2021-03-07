@@ -1,2 +1,0 @@
-# PSTextAdventure
- Powershell Text Adventure
