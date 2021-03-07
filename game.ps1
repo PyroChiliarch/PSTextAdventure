@@ -49,7 +49,7 @@ class ViewPort {
     [FrameBufferCell[, ]]$screenBuffer
 
     #Constructor
-    ViewPort ([int]$posX, [int]$posY, [int]$width, [int]$height, [FrameBufferCell]$defaultCell) {
+    ViewPort ([int]$width, [int]$height,[int]$posX, [int]$posY, [FrameBufferCell]$defaultCell) {
         
         $this.posX = $posX
         $this.posY = $posY
@@ -72,19 +72,13 @@ class ViewPort {
 
 
     [void] DrawTerrain ([World]$gameWorld) {
-        #Draw terrain from world to viewport
-       
-
-        for ($x = $this.posX; $x -lt ($this.posX + $this.width); $x++) {
-            for ($y = $this.posY; $y -lt ($this.posY + $this.height); $y++) {
+        #Draw terrain from worl to viewport
+        for ($x = $this.posX; $x -lt ($this.width + $this.posX); $x++) {
+            for ($y = $this.posY; $y -lt ($this.height + $this.posY); $y++) {
                 $this.frameBuffer[$x, $y].char = $gameWorld.GetVoxel($x, $y).voxelData
                 $this.frameBuffer[$x, $y].depth = 255
-                
             }
         }
-
-
-        
 
     } 
 
@@ -215,8 +209,14 @@ class TerrainVoxel {
     [char]$voxelData
 
     TerrainVoxel ($xPos, $yPos) {
-        if ($xPos -eq 3) {
-            $this.voxelData = 'X'
+        if ((Get-Random -Maximum 20) -lt 15) {
+            $this.voxelData = ','
+        } else {
+            $this.voxelData = '.'
+        }
+
+        if ((Get-Random -Maximum 20) -lt 1) {
+            $this.voxelData = [char]0x2663
         }
         
     }
@@ -261,19 +261,17 @@ class World {
         #Get Voxel position in chunk
         $relVoxelX = $xPos % $this.chunkSize
         $relVoxelY = $yPos % $this.chunkSize
-        
+
         #Build chunk if its null
         if ($null -eq $this.chunkData[$chunkPos]) {
             [TerrainChunk]$newChunk = [TerrainChunk]::new($this.chunkSize)
             $this.chunkData.Add($chunkPos, $newChunk)
         }
 
-        
         #Get Chunk and voxel
         [TerrainChunk]$chunk = $this.chunkData[$chunkPos]
         [TerrainVoxel]$voxel = $chunk.voxelData[$relVoxelX, $relVoxelY]
-        
-        
+
         #Return voxel
         return $voxel
     }
@@ -311,7 +309,7 @@ Function pause ($message) {
 [int]$viewPortHeight = 20
 [int]$viewPortWidth = 30
 [FrameBufferCell]$defaultFrameBufferCell = New-Object 'FrameBufferCell' 255, '.'
-[ViewPort]$viewPort = [ViewPort]::new(0, 0, $viewPortWidth, $viewPortHeight, $defaultFrameBufferCell)
+[ViewPort]$viewPort = New-Object 'ViewPort' $viewPortWidth, $viewPortHeight, $defaultFrameBufferCell
 
 #Console Vars
 [GameConsole]$gameConsole = [GameConsole]::new(5)
@@ -339,7 +337,7 @@ while ($stopGame -eq $false) {
     #Prepare viewport
     $viewPort.ClearFrameBuffer()
     $viewPort.DrawTerrain($gameWorld)
-    $viewPort.DrawParticle($player.posX, $player.posY, 10, 'X')
+    $viewPort.DrawParticle($player.posX, $player.posY, 10, 'O')
 
     #Draw viewport to screen
     Clear-Host
@@ -380,31 +378,7 @@ while ($stopGame -eq $false) {
             $player.posX -= 1
             break
         }
-
-        if ($inputKey -eq '65') {
-            #A
-            $viewPort.posX -= 1
-            break;
-        }
-
-        if ($inputKey -eq '68') {
-            #D
-            $viewPort.posX += 1
-            break;
-        }
-
-        if ($inputKey -eq '87') {
-            #W
-            $viewPort.posY -= 1
-            break;
-        }
-
-        if ($inputKey -eq '83') {
-            #S
-            $viewPort.posY += 1
-            break;
-        }
-        
+    
         if ($inputKey -eq '27') {
             #Esc
             $stopGame = $true
@@ -429,10 +403,6 @@ while ($stopGame -eq $false) {
 
             if ($consoleInput -eq "help") {
                 $gameConsole.Log("No help available at this time")
-            }
-
-            if ($consoleInput -eq "debug viewport") {
-                $gameConsole.Log("pos $($viewport.posX)")
             }
 
             [Console]::CursorVisible = $false
