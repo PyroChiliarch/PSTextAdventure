@@ -280,6 +280,15 @@ class World {
         #Return voxel
         return $voxel
     }
+
+    <#[Coordinates] ScreenPosToWorldPos ([int]screenX, [int]screenY, [ViewPort]viewPort) {
+        #Works on a position on the viewport
+        [Coordinates]$truePos = [Coordinates]::new($screenX + $viewPort.posX, $screenY + $viewPort.posY)
+
+        return $truePos
+    }#>
+
+    
 }
 
 
@@ -362,6 +371,7 @@ while ($stopGame -eq $false) {
         $host.UI.RawUI.FlushInputBuffer() #Stop Movement after key release, Input can build up if held
         $inputKey = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown').VirtualKeyCode
 
+        #==Cursor Movement
         if ($inputKey -eq '40') {
             #Down
             $player.posY += 1
@@ -385,6 +395,7 @@ while ($stopGame -eq $false) {
             break
         }
 
+        #==Window Movement
         if ($inputKey -eq '65') {
             #A
             $viewPort.posX -= 1
@@ -409,7 +420,14 @@ while ($stopGame -eq $false) {
             break
         }
 
-    
+        #==
+        if ($inputKey -eq '32') {
+            #Space
+            #[Coordinates]$cursorPos = $gameWorld.ScreenPosToWorldPos($player.posX, $player.posY)
+            #gameConsole.Log("Pos: $($cursorPos.X),$($cursorPos.Y)")
+            break
+        }
+
         if ($inputKey -eq '27') {
             #Esc
             $stopGame = $true
