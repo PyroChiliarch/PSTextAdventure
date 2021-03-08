@@ -280,11 +280,16 @@ class World {
         #Return voxel
         return $voxel
     }
+    
+    <#[void] ScreenPosToWorldPos ([string]$asdf) {
+        pause ($asdf)
+    }#>
 
     <#[Coordinates] ScreenPosToWorldPos ([int]screenX, [int]screenY, [ViewPort]viewPort) {
         #Works on a position on the viewport
-        [Coordinates]$truePos = [Coordinates]::new($screenX + $viewPort.posX, $screenY + $viewPort.posY)
-
+        
+        [Coordinates]$truePos = [Coordinates]::new(($screenX + $viewPort.posX), ($screenY + $viewPort.posY))
+        
         return $truePos
     }#>
 
