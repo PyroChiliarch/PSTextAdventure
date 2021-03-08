@@ -6,6 +6,10 @@ using namespace System.Collections.Generic
 using namespace System.Management.Automation.Host
 #https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshostrawuserinterface?view=powershellsdk-7.0.0
 
+
+
+
+
 #Class============
 class FrameBufferCell {
     #Properties
@@ -281,12 +285,12 @@ class World {
         return $voxel
     }
 
-    <#[Coordinates] ScreenPosToWorldPos ([int]screenX, [int]screenY, [ViewPort]viewPort) {
+    [Coordinates] ScreenPosToWorldPos ([int]$screenX, [int]$screenY, [ViewPort]$viewPort) {
         #Works on a position on the viewport
         [Coordinates]$truePos = [Coordinates]::new($screenX + $viewPort.posX, $screenY + $viewPort.posY)
 
         return $truePos
-    }#>
+    }
 
     
 }
@@ -337,6 +341,7 @@ $host.UI.RawUI.WindowTitle = 'Ardlinam'
 
 
 #Write-Host $gameWorld.GetVoxel(-1, -200).voxelData
+Clear-Host
 pause('Start of Program, Press any key to continue...')
 
 
@@ -423,8 +428,8 @@ while ($stopGame -eq $false) {
         #==
         if ($inputKey -eq '32') {
             #Space
-            #[Coordinates]$cursorPos = $gameWorld.ScreenPosToWorldPos($player.posX, $player.posY)
-            #gameConsole.Log("Pos: $($cursorPos.X),$($cursorPos.Y)")
+            [Coordinates]$cursorPos = $gameWorld.ScreenPosToWorldPos($player.posX, $player.posY, $viewPort)
+            $gameConsole.Log("Pos: $($cursorPos.X), $($cursorPos.Y)")
             break
         }
 
@@ -439,12 +444,7 @@ while ($stopGame -eq $false) {
             [Console]::CursorVisible = $true
             [string]$consoleInput = $gameInput.GetInputString().ToLower()
             
-            #dont write logs if an empty command is given
-            if ($consoleInput -ne "") {
-                $gameConsole.Log(" - " + $consoleInput)
-            }
-            
-            
+
             if ($consoleInput -eq "exit") {
                 $stopGame = $true
                 Write-Host ""
@@ -470,3 +470,4 @@ while ($stopGame -eq $false) {
 
 Clear-Host
 pause('End of Program, Press any key to continue...')
+Clear-Host
