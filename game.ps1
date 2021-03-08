@@ -119,10 +119,18 @@ class ViewPort {
             }
         }
 
-        #Write each string to screen
+        <#Write each string to screen
         for ($y = 0; $y -lt $this.height; $y++) {
             Write-Host $bufferRows[$y]
+        }#>
+
+        #Large String
+        [string]$bufferString = ""
+        for ($y = 0; $y -lt $this.height; $y++) {
+            $bufferString = $bufferString + $bufferRows[$y] + "`r`n"
         }
+
+        Write-Host $bufferString
     }
 
     [void] DrawParticle ([int]$xPos, [int]$yPos, [int]$depth , [char]$char) {
@@ -360,7 +368,8 @@ while ($stopGame -eq $false) {
     $viewPort.DrawParticle($player.posX, $player.posY, 10, 'X')
 
     #Draw viewport to screen
-    Clear-Host
+    #Clear-Host
+    $Global:Host.UI.RawUI.CursorPosition = [Coordinates]::new(0, 0)
     $viewPort.DrawFrameBuffer()
 
     #Draw Console
@@ -425,7 +434,7 @@ while ($stopGame -eq $false) {
             break
         }
 
-        #==
+        #==Commands
         if ($inputKey -eq '32') {
             #Space
             [Coordinates]$cursorPos = $gameWorld.ScreenPosToWorldPos($player.posX, $player.posY, $viewPort)
