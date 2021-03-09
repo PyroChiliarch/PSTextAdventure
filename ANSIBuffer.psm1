@@ -54,18 +54,33 @@ class ANSIBuffer {
     [void] DrawBuffer () {
         $Global:Host.UI.RawUI.CursorPosition = [Coordinates]::new(0, 0)
         #Draw Buffer
-
+        
+        #0x0000 is a null character, stops null error and doesn't affect drawing
+        [ANSIBufferCell]$prevCell = [ANSIBufferCell]::new([char]0x0000,"","")
         [string]$drawString = ""
         for ($y = 0; $y -lt $this.height; $y++) {
             for ($x = 0; $x -lt $this.width; $x++) {
-                $drawString += $this.buffer[$x, $y].character
+                
+                if ($this.buffer[$x, $y].styleStart -ne $prevCell.styleStart) {
+                    $drawString += $prevCell.styleEnd
+                    $drawString += $this.buffer[$x, $y].styleStart
+                    $drawString += $this.buffer[$x, $y].character
+                } else {
+                    $drawString += $this.buffer[$x, $y].character
+                }
+
+                $prevCell = $this.buffer[$x, $y]
+                
+                
+                
             }
 
             #Add new line after each line
             $drawString += "`r`n"
-
         }
 
+        #close off last cell style ending
+        $drawString += $prevCell.styleEnd
 
         Write-Host $drawString
     }
