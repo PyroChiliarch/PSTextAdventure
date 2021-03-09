@@ -41,7 +41,7 @@ using namespace System.Management.Automation.Host
 #https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshostrawuserinterface?view=powershellsdk-7.0.0
 
 
-Import-Module .\pausem.psm1
+Import-Module .\Pause.psm1
 
 
 
