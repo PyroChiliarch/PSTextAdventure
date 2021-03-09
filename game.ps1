@@ -3,25 +3,15 @@
 Todo
 
 How to set Virtual Terminal
-
 It works
 $e = [char]0x1b
 Write-Host "$e[38;2;255;128;128;48;2;128;0;255;4mtest$e[0m"
 https://stackoverflow.com/questions/56679782/how-to-use-ansi-escape-sequence-color-codes-for-psreadlineoption-v2-in-powershel
 
+move 
 
 
-Create my own window buffer so i can draw the whole thing in one go
-Requires ANSI escape codes for different colours in one string
-Will Stop flickering
 
-
-Need non blocking input
-Sleep
-https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/start-sleep?view=powershell-7.1
-
-Multithread
-https://www.codeproject.com/Tips/895840/Multi-Threaded-PowerShell-Cookbook
 #>
 
 
@@ -64,16 +54,19 @@ Pause("Load Complete, Press any key to continue...")
 
 #Initialise Objects
 [ANSIBuffer]$consoleBuffer = [ANSIBuffer]::new(10, 10)
+#Not needed but good for testing
 [ANSIBufferCell]$fillCell = [ANSIBufferCell]::new('?', "$e[38;2;255;128;128;48;2;128;0;255;4m", "$e[0m")
 $consoleBuffer.FillBuffer($fillCell)
+
 
 
 #Start Timing
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 $stopwatch.Start()
-
 [int]$consoleBufferDelay = 100
 [int]$consoleBufferLastTrigger = 0
+
+
 
 #Enter main loop
 while ($true) {
@@ -88,7 +81,9 @@ while ($true) {
 
     #Gamelogic Update
 
+    
     #Gameworld Update
+
 
     #Graphics Update
     if ($stopwatch.Elapsed.TotalMilliseconds -gt $consoleBufferLastTrigger + $consoleBufferDelay) {
