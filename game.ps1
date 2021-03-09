@@ -1,3 +1,34 @@
+#Todo
+
+
+
+#Enable ANSI Escape codes using GetConsoleMode
+#https://stackoverflow.com/questions/38045245/how-to-call-getstdhandle-getconsolemode-from-powershell
+#https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
+#https://docs.microsoft.com/en-us/windows/console/getconsolemode
+#https://docs.microsoft.com/en-us/windows/console/setconsolemode
+#
+#May require using WriteConsole
+#https://docs.microsoft.com/en-us/windows/console/writeconsole
+#
+#Allows
+#Multiple colours in one string
+#Underline or bold
+#DEC line drawing mode
+#Triggering certain button presses from write-host
+#Being super fancy in general
+
+
+
+
+#Create my own window buffer so i can draw the whole thing in one go
+##Requires ANSI escape codes for different colours in one string
+#Will Stop flickering
+
+
+
+
+
 
 
 #Includes
@@ -5,6 +36,9 @@ using namespace System.Collections.Generic
 #https://docs.microsoft.com/en-us/dotnet/api/system.collections?view=netframework-4.8
 using namespace System.Management.Automation.Host
 #https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshostrawuserinterface?view=powershellsdk-7.0.0
+
+
+
 
 #Class============
 class FrameBufferCell {
@@ -115,10 +149,18 @@ class ViewPort {
             }
         }
 
-        #Write each string to screen
+        <#Write each string to screen
         for ($y = 0; $y -lt $this.height; $y++) {
             Write-Host $bufferRows[$y]
+        }#>
+
+        #Large String
+        [string]$bufferString = ""
+        for ($y = 0; $y -lt $this.height; $y++) {
+            $bufferString = $bufferString + $bufferRows[$y] + "`r`n"
         }
+
+        Write-Host $bufferString
     }
 
     [void] DrawParticle ([int]$xPos, [int]$yPos, [int]$depth , [char]$char) {
@@ -136,6 +178,7 @@ class ViewPort {
     }
     
 }
+
 
 
 class Player {
@@ -285,13 +328,13 @@ class World {
         pause ($asdf)
     }#>
 
-    <#[Coordinates] ScreenPosToWorldPos ([int]screenX, [int]screenY, [ViewPort]viewPort) {
+    [Coordinates] ScreenPosToWorldPos ([int]$screenX, [int]$screenY, [ViewPort]$viewPort) {
         #Works on a position on the viewport
         
         [Coordinates]$truePos = [Coordinates]::new(($screenX + $viewPort.posX), ($screenY + $viewPort.posY))
         
         return $truePos
-    }#>
+    }
 
     
 }
@@ -342,7 +385,26 @@ $host.UI.RawUI.WindowTitle = 'Ardlinam'
 
 
 #Write-Host $gameWorld.GetVoxel(-1, -200).voxelData
-pause('Start of Program, Press any key to continue...')
+Clear-Host
+#Write-Host $Global:Host.UI.RawUI.BackgroundColor
+Write-Host "Start of Program..."
+
+<#$MethodDefinitions = @'
+[DllImport("kernel32.dll", SetLastError = true)]
+public static extern IntPtr GetStdHandle(int nStdHandle);
+[DllImport("kernel32.dll", SetLastError = true)]
+public static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+'@
+$Kernel32 = Add-Type -MemberDefinition $MethodDefinitions -Name 'Kernel32' -Namespace 'Win32' -PassThru
+$hConsoleHandle = $Kernel32::GetStdHandle(-11) # STD_OUTPUT_HANDLE 
+$mode = 0
+$Kernel32::GetConsoleMode($hConsoleHandle, [ref]$mode)
+Write-Host "$($mode)"#>
+#Write-Host "[101;93m STYLES [0m"
+
+Write-Host "$($host.version.Major).$($host.version.Minor) : Powershell Version" #Game built in v5.1
+Write-Host "$($Host.UI.SupportsVirtualTerminal) : Virtual Terminal Support" #required for `e and colours
+pause('Press any key to continue...')
 
 
 
@@ -357,10 +419,12 @@ while ($stopGame -eq $false) {
     $viewPort.ClearFrameBuffer()
     $viewPort.DrawTerrain($gameWorld)
     #pause("asdf")
+    #$Global:Host.UI.RawUI. = [Coordinates]::new($position.X, $position.Y)
     $viewPort.DrawParticle($player.posX, $player.posY, 10, 'X')
 
     #Draw viewport to screen
-    Clear-Host
+    #Clear-Host
+    $Global:Host.UI.RawUI.CursorPosition = [Coordinates]::new(0, 0)
     $viewPort.DrawFrameBuffer()
 
     #Draw Console
@@ -425,11 +489,11 @@ while ($stopGame -eq $false) {
             break
         }
 
-        #==
+        #==Commands
         if ($inputKey -eq '32') {
             #Space
-            #[Coordinates]$cursorPos = $gameWorld.ScreenPosToWorldPos($player.posX, $player.posY)
-            #gameConsole.Log("Pos: $($cursorPos.X),$($cursorPos.Y)")
+            [Coordinates]$cursorPos = $gameWorld.ScreenPosToWorldPos($player.posX, $player.posY, $viewPort)
+            $gameConsole.Log("Pos: $($cursorPos.X), $($cursorPos.Y)")
             break
         }
 
@@ -444,12 +508,7 @@ while ($stopGame -eq $false) {
             [Console]::CursorVisible = $true
             [string]$consoleInput = $gameInput.GetInputString().ToLower()
             
-            #dont write logs if an empty command is given
-            if ($consoleInput -ne "") {
-                $gameConsole.Log(" - " + $consoleInput)
-            }
-            
-            
+
             if ($consoleInput -eq "exit") {
                 $stopGame = $true
                 Write-Host ""
@@ -475,3 +534,4 @@ while ($stopGame -eq $false) {
 
 Clear-Host
 pause('End of Program, Press any key to continue...')
+Clear-Host
