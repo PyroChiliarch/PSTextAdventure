@@ -28,10 +28,10 @@ using namespace System.Management.Automation.Host
 #https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshostrawuserinterface?view=powershellsdk-7.0.0
 
 #For drawing to screen
-using module ./ANSIBuffer.psm1
+using module ./Core/ANSIBuffer.psm1
 
 #For batch like pausing
-Import-Module .\Pause.psm1
+using module ./Core/Pause.psm1
 
 
 
@@ -62,12 +62,12 @@ Pause("Load Complete, Press any key to continue...")
 
 
 #Initialise Objects
-[ANSIBuffer]$consoleBuffer = [ANSIBuffer]::new(10, 10)
+[ANSIBufferCell]$fillCell = [ANSIBufferCell]::new('X', [ANSIBufferCell]::CreateStyle(255, 0, 0, 0, 0, 0, $false, $false))
+[ANSIBuffer]$consoleBuffer = [ANSIBuffer]::new(30, 30, $fillCell)
+$consoleBuffer.Clear()
 
-#Not needed but good for testing
-$e = [char]0x1b
-[ANSIBufferCell]$fillCell = [ANSIBufferCell]::new('?', "$e[38;2;255;128;128;48;2;128;0;255;4m", "$e[0m")
-$consoleBuffer.FillBuffer($fillCell)
+
+
 
 
 #Input Mapping
@@ -84,11 +84,19 @@ $stopwatch.Start()
 [int]$consoleBufferLastTrigger = 0
 
 $loopCount = 0
+$drawCount = 0
+
+$testStyle = [ANSIBufferCell]::CreateStyle(0, 255, 0, 0, 0, 0, $true, $false)
+$testCell = [ANSIBufferCell]::new('T', $testStyle)
+
+$testStyle2 = [ANSIBufferCell]::CreateStyle(0, 0, 255, 0, 0, 0, $true, $false)
+$testCell2 = [ANSIBufferCell]::new('U', $testStyle2)
 
 #Enter main loop
 while ($true) {
     
-
+    
+    
     #Input Get
     #Only get if key available to avoid halting program
     if ($host.UI.RawUI.KeyAvailable -eq $true) {
@@ -98,7 +106,7 @@ while ($true) {
         }
 
         if ($inputKey.VirtualKeyCode -eq $keyAction) {
-            $consoleBuffer.buffer[4, 4] = [ANSIBufferCell]::new('C',"$e[38;2;0;255;0;48;2;128;0;255m", "$e[0m")
+            #$consoleBuffer.buffer[4, 4] = [ANSIBufferCell]::new('C',"$e[48;2;255;255;255;38;2;0;0;0mcccc$e[27m")
         }
 
     }
@@ -107,10 +115,19 @@ while ($true) {
     #Graphics Update
     if ($stopwatch.Elapsed.TotalMilliseconds -gt $consoleBufferLastTrigger + $consoleBufferDelay) {
         $consoleBufferLastTrigger = $stopwatch.Elapsed.TotalMilliseconds
-        $consoleBuffer.DrawBuffer()
+        
+        
+        #$consoleBuffer.WriteCell()
+        $consoleBuffer.Clear()
+        $consoleBuffer.WriteCell(4, $drawCount, $testCell)
+        $consoleBuffer.WriteCell($drawCount, 4, $testCell2)
+        $consoleBuffer.Draw()
+        $drawCount++
+        #$consoleBuffer.Clear()
     }
     
     #Write-Host "Loop Count: " + $loopCount + $host.UI.RawUI.KeyAvailable
+    
     $loopCount++
     
 }   
