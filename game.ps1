@@ -11,7 +11,14 @@ https://stackoverflow.com/questions/56679782/how-to-use-ansi-escape-sequence-col
 
 move 
 
-
+Game
+-ScreenBuffer
+-Environments
+--GameWorld
+---MenuContextStack
+----Inputs
+----Viewport
+----Console/Log
 
 #>
 
@@ -56,8 +63,9 @@ Pause("Load Complete, Press any key to continue...")
 
 #Initialise Objects
 [ANSIBuffer]$consoleBuffer = [ANSIBuffer]::new(10, 10)
-$e = [char]0x1b
+
 #Not needed but good for testing
+$e = [char]0x1b
 [ANSIBufferCell]$fillCell = [ANSIBufferCell]::new('?', "$e[38;2;255;128;128;48;2;128;0;255;4m", "$e[0m")
 $consoleBuffer.FillBuffer($fillCell)
 
@@ -75,7 +83,7 @@ $stopwatch.Start()
 [int]$consoleBufferDelay = 100
 [int]$consoleBufferLastTrigger = 0
 
-
+$loopCount = 0
 
 #Enter main loop
 while ($true) {
@@ -83,20 +91,17 @@ while ($true) {
 
     #Input Get
     #Only get if key available to avoid halting program
-    if ($host.UI.RawUI.KeyAvailable) {
-        [int]$inputKey = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown').VirtualKeyCode
+    if ($host.UI.RawUI.KeyAvailable -eq $true) {
+        [KeyInfo]$inputKey = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown,IncludeKeyUp')
+        if ($inputKey.KeyDown -eq $false) {
+            continue
+        }
 
-        if ($inputKey = $keyAction) {
+        if ($inputKey.VirtualKeyCode -eq $keyAction) {
             $consoleBuffer.buffer[4, 4] = [ANSIBufferCell]::new('C',"$e[38;2;0;255;0;48;2;128;0;255m", "$e[0m")
         }
 
     }
-
-
-    #Gamelogic Update
-
-    
-    #Gameworld Update
 
 
     #Graphics Update
@@ -105,7 +110,7 @@ while ($true) {
         $consoleBuffer.DrawBuffer()
     }
     
-
-
+    #Write-Host "Loop Count: " + $loopCount + $host.UI.RawUI.KeyAvailable
+    $loopCount++
     
 }   
