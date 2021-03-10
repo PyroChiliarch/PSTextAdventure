@@ -1,16 +1,11 @@
 using namespace System.Management.Automation.Host
 #https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshostrawuserinterface?view=powershellsdk-7.0.0
 
-#0 Reset
-#4 Underline
-#7 Invert
-#27 Not Inverted
-#24 Not underlined
-#38 ForeGround colour 2
-#48 Background colour 2
-
-
-
+<#
+TODO
+WriteBuffer
+WriteLog
+#>
 
 class ANSIBufferCell {
 
