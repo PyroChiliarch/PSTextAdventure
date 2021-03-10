@@ -86,7 +86,7 @@ while ($true) {
     if ($host.UI.RawUI.KeyAvailable) {
         [int]$inputKey = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown').VirtualKeyCode
 
-        if ($inputKey = 32) {
+        if ($inputKey = $keyAction) {
             $consoleBuffer.buffer[4, 4] = [ANSIBufferCell]::new('C',"$e[38;2;0;255;0;48;2;128;0;255m", "$e[0m")
         }
 
