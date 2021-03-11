@@ -14,12 +14,14 @@ class GameMenu : LogicEnvironment {
     [string]$selectedTextStyle = [ANSIBufferCell]::CreateStyle(0, 255, 0, 0, 0, 0, $true, $false)
 
 
-    GameMenu ([string]$name, [ANSIBuffer]$gScreen, [Input]$gInput, [System.Diagnostics.Stopwatch]$gTime) {
+    GameMenu ([string]$name, [ANSIBuffer]$gScreen, [Input]$gInput, [System.Diagnostics.Stopwatch]$gTime, [ExitCode]$prevExitCode) {
         $this.name = $name
         $this.gScreen = $gScreen
         $this.gInput = $gInput
         $this.gTime = $gTime
+        $this.prevExitCode = $prevExitCode
     }
+
 
 
     [ExitCode] Update () {

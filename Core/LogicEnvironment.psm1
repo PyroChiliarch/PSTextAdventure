@@ -31,17 +31,21 @@ class ExitCode {
 
 class LogicEnvironment {
 
+    #Exit Code from previous environment
+    #Inherit and override if you ned to set options
+    [ExitCode]$prevExitCode 
     [string]$name
     [ANSIBuffer]$gScreen
     [Input]$gInput
     [System.Diagnostics.Stopwatch]$gTime
 
 
-    GameEnvironment ([string]$name, [ANSIBuffer]$gScreen, [Input]$gInput, [System.Diagnostics.Stopwatch]$gTime) {
+    GameEnvironment ([string]$name, [ANSIBuffer]$gScreen, [Input]$gInput, [System.Diagnostics.Stopwatch]$gTime, [ExitCode]$prevExitCode) {
         $this.name = $name
         $this.gScreen = $gScreen
         $this.gInput = $gInput
         $this.gTime = $gTime
+        $this.prevExitCode = $prevExitCode
     }
 
     [ExitCode] Update () {

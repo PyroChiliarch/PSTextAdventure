@@ -32,7 +32,8 @@ class ANSIBufferCell {
         [ANSIBufferCell]$newCell = [ANSIBufferCell]::new($this.character, $this.style, $this.depth)
         return $newCell
     }
-    
+
+
     static [string] CreateStyle ([byte]$foreR, [byte]$foreG, [byte]$foreB, [byte]$backR, [byte]$backG, [byte]$backB, [bool]$invert, [bool]$underline) {
         #Note: All added strings add ; at the start except the first
         #Syle is build using ANSI codes that are placed at the beginning of a write to console

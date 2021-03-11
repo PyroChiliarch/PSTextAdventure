@@ -74,7 +74,7 @@ Pause("Load Complete, Press any key to continue...")
 
 
 #Initialise GameEnvironments
-[GameMenu]$gEnvironment = [GameMenu]::new("MainMenu", $gScreen, $gInput, $gTime)
+[GameMenu]$gEnvironment = [GameMenu]::new("MainMenu", $gScreen, $gInput, $gTime, [ExitCode]::new(""))
 
 
 #Enter main loop
