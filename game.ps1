@@ -61,7 +61,7 @@ Pause("Load Complete, Press any key to continue...")
 
 
 #Initialise Objects
-[ANSIBufferCell]$fillCell = [ANSIBufferCell]::new(' ', [ANSIBufferCell]::CreateStyle(0, 0, 0, 0, 0, 0, $false, $false))
+[ANSIBufferCell]$fillCell = [ANSIBufferCell]::new(' ', [ANSIBufferCell]::CreateStyle(0, 0, 0, 0, 0, 0, $false, $false), 255)
 [ANSIBuffer]$consoleBuffer = [ANSIBuffer]::new(30, 30, $fillCell)
 $consoleBuffer.Clear()
 
@@ -80,7 +80,7 @@ $consoleBuffer.Clear()
 #Start Timing
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 $stopwatch.Start()
-[int]$consoleBufferDelay = 50
+[int]$consoleBufferDelay = 500
 [int]$consoleBufferLastTrigger = 0
 
 $loopCount = 0
@@ -89,7 +89,10 @@ $drawCount = 0
 
 
 $testStyle = [ANSIBufferCell]::CreateStyle(0, 255, 0, 0, 0, 0, $true, $false)
-$testCell = [ANSIBufferCell]::new('T', $testStyle)
+$testCell = [ANSIBufferCell]::new('T', $testStyle, 10)
+
+$testStyle2 = [ANSIBufferCell]::CreateStyle(255, 0, 0, 0, 0, 255, $true, $false)
+$testCell2 = [ANSIBufferCell]::new('T', $testStyle2, 10)
 
 #Enter main loop
 while ($true) {
@@ -121,7 +124,15 @@ while ($true) {
         
         #$consoleBuffer.WriteCell()
         $consoleBuffer.Clear()
-        $consoleBuffer.WriteString(0, 0, $drawCount, $testCell.style)
+        $consoleBuffer.WriteString(0, 0, $drawCount, $testCell.style, 10)
+        $consoleBuffer.WriteString(0, 10, "1111111111111111", $testCell.style, 60)
+        $consoleBuffer.WriteString(0, 11, "1111111111111111", $testCell.style, 30)
+        $consoleBuffer.WriteString(0, 12, "1111111111111111", $testCell.style, 60)
+        $consoleBuffer.WriteString(0, 13, "1111111111111111", $testCell.style, 30)
+        $consoleBuffer.WriteString(0, 14, "1111111111111111", $testCell.style, 60)
+        $consoleBuffer.WriteString(0, 15, "1111111111111111", $testCell.style, 30)
+        $consoleBuffer.WriteString(5, $drawCount, "xxxxxxxxxxxxxxx", $testStyle2, 50)
+        
         $consoleBuffer.Draw()
         $drawCount++
         #$consoleBuffer.Clear()

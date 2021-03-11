@@ -151,7 +151,6 @@ class Input {
         }
 
         $Global:Host.UI.RawUI.FlushInputBuffer() #Stop Movement after key release, Input can build up if held
-
         
     }
 }

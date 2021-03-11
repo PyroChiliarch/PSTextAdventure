@@ -11,17 +11,18 @@ class ANSIBufferCell {
 
     [char]$character
     [string]$style
-    
+    [byte]$depth
 
-    ANSIBufferCell ([char]$character, [string]$style) {
+    ANSIBufferCell ([char]$character, [string]$style, [byte]$depth) {
         $this.character = $character
         $this.style = $style
+        $this.depth = $depth
     }
 
 
     [ANSIBufferCell] Clone () {
         #clone this object
-        [ANSIBufferCell]$newCell = [ANSIBufferCell]::new($this.character, $this.style)
+        [ANSIBufferCell]$newCell = [ANSIBufferCell]::new($this.character, $this.style, $this.depth)
         return $newCell
     }
     
@@ -101,7 +102,7 @@ class ANSIBuffer {
         #Draw Buffer
         
         #0x0000 is a null character, stops null error and doesn't affect drawing
-        [ANSIBufferCell]$prevCell = [ANSIBufferCell]::new([char]0x0000,"")
+        [ANSIBufferCell]$prevCell = [ANSIBufferCell]::new([char]0x0000,"", 255)
         [string]$drawString = ""
         for ($y = 0; $y -lt $this.height; $y++) {
             for ($x = 0; $x -lt $this.width; $x++) {
@@ -134,13 +135,17 @@ class ANSIBuffer {
 
     [void] WriteCell ([int]$posX, [int]$posY, [ANSIBufferCell]$cell) {
         #return true/false on failure/success
+        #Check bounds
         if ($posX -lt $this.width -and $posY -lt $this.height) {
-            $this.buffer[$posX, $posY] = $cell.Clone()
+            #check Depth
+            if ($cell.depth -le $this.buffer[$posX, $posY].depth) {
+                $this.buffer[$posX, $posY] = $cell.Clone()
+            }
         }
     }
     
 
-    [void] WriteString ([int]$posX, [int]$posY, [string]$string, [string]$style) {
+    [void] WriteString ([int]$posX, [int]$posY, [string]$string, [string]$style, [byte]$depth) {
         #check out of bounds Y
         #X check is done per cell in for loop
         if ($posY -gt $this.height -or $posY -lt 0) {
@@ -154,7 +159,11 @@ class ANSIBuffer {
         for ($x = 0; $x -lt $string.Length; $x++) {
             #Check bounds
             if ($x -gt -1 -and $x -lt $this.width) {
-                $this.buffer[($x + $posX), $posY] = [ANSIBufferCell]::new([char]$stringArray[$x], $style)
+                #check Depth
+                if ($depth -le $this.buffer[($x + $posX), $posY].depth) {
+                    $this.buffer[($x + $posX), $posY] = [ANSIBufferCell]::new([char]$stringArray[$x], $style, $depth)
+                }
+                
             }
         }
     }
