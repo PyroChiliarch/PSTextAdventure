@@ -31,6 +31,7 @@ using namespace System.Management.Automation.Host
 using module ./Core/ANSIBuffer.psm1
 using module ./Core/Pause.psm1
 using module ./Core/Input.psm1
+using module ./Core/LogicEnvironment.psm1
 
 
 
@@ -61,11 +62,17 @@ Pause("Load Complete, Press any key to continue...")
 
 
 #Initialise Objects
-[ANSIBuffer]$consoleBuffer = [ANSIBuffer]::new(30, 30)
+[ANSIBuffer]$gScreen = [ANSIBuffer]::new(30, 30)
 
-[Input]$gameInput = [Input]::new()
+[Input]$gInput = [Input]::new()
 
-[System.Diagnostics.Stopwatch]$gameTime = [System.Diagnostics.Stopwatch]::StartNew()
+[System.Diagnostics.Stopwatch]$gTime = [System.Diagnostics.Stopwatch]::StartNew()
+
+
+
+#Initialise GameEnvironments
+[LogicEnvironment]$gEnvironment = [LogicEnvironment]::new("default", $gScreen, $gInput, $gTime)
+
 
 <#
 [int]$consoleBufferDelay = 500
@@ -96,7 +103,10 @@ $testCell2 = [ANSIBufferCell]::new('T', $testStyle2, 10)
 #Enter main loop
 while ($true) {
     
-    
+    if ($gEnvironment.Update()) {
+        break
+    }
+
     <#
     #Input Get
     #Only get if key available to avoid halting program
