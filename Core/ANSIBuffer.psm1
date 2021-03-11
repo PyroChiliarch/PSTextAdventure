@@ -73,6 +73,14 @@ class ANSIBuffer {
     #ANSI clear string
     [char]$e = [char]0x1b
 
+    ANSIBuffer ([int]$width, [int]$height) {
+        [Console]::CursorVisible = $false
+        $this.buffer = [ANSIBufferCell[,]]::new($width, $height)
+        $this.height = $height
+        $this.width = $width
+        $this.clearCell = [ANSIBufferCell]::new(' ', [ANSIBufferCell]::CreateStyle(0, 0, 0, 0, 0, 0, $false, $false), 255)
+    }
+
     ANSIBuffer ([int]$width, [int]$height, [ANSIBufferCell]$clearCell) {
         [Console]::CursorVisible = $false
         $this.buffer = [ANSIBufferCell[,]]::new($width, $height)

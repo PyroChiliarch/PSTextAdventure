@@ -61,44 +61,43 @@ Pause("Load Complete, Press any key to continue...")
 
 
 #Initialise Objects
-[ANSIBufferCell]$fillCell = [ANSIBufferCell]::new(' ', [ANSIBufferCell]::CreateStyle(0, 0, 0, 0, 0, 0, $false, $false), 255)
-[ANSIBuffer]$consoleBuffer = [ANSIBuffer]::new(30, 30, $fillCell)
-$consoleBuffer.Clear()
-
+[ANSIBuffer]$consoleBuffer = [ANSIBuffer]::new(30, 30)
 
 [Input]$gameInput = [Input]::new()
 
+[System.Diagnostics.Stopwatch]$gameTime = [System.Diagnostics.Stopwatch]::StartNew()
 
-
-
-
-
-
-
-
-
-#Start Timing
-$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-$stopwatch.Start()
+<#
 [int]$consoleBufferDelay = 500
 [int]$consoleBufferLastTrigger = 0
 
 $loopCount = 0
 $drawCount = 0
+#>
 
 
 
+
+#Start Timing
+
+
+
+
+
+<#
 $testStyle = [ANSIBufferCell]::CreateStyle(0, 255, 0, 0, 0, 0, $true, $false)
 $testCell = [ANSIBufferCell]::new('T', $testStyle, 10)
 
 $testStyle2 = [ANSIBufferCell]::CreateStyle(255, 0, 0, 0, 0, 255, $true, $false)
 $testCell2 = [ANSIBufferCell]::new('T', $testStyle2, 10)
+#>
+
 
 #Enter main loop
 while ($true) {
     
     
-    
+    <#
     #Input Get
     #Only get if key available to avoid halting program
     $gameInput.UpdateInput()
@@ -109,7 +108,7 @@ while ($true) {
         if ($gameInput.currentKey.VirtualKeyCode -eq [KeyID]::none) {
             continue
         }
-
+        
         if ($gameInput.currentKey.VirtualKeyCode -eq [KeyID]::space) {
             break #$consoleBuffer.buffer[4, 4] = [ANSIBufferCell]::new('C',"$e[48;2;255;255;255;38;2;0;0;0mcccc$e[27m")
         }
@@ -118,8 +117,8 @@ while ($true) {
 
 
     #Graphics Update
-    if ($stopwatch.Elapsed.TotalMilliseconds -gt $consoleBufferLastTrigger + $consoleBufferDelay) {
-        $consoleBufferLastTrigger = $stopwatch.Elapsed.TotalMilliseconds
+    if ($gameTime.Elapsed.TotalMilliseconds -gt $consoleBufferLastTrigger + $consoleBufferDelay) {
+        $consoleBufferLastTrigger = $gameTime.Elapsed.TotalMilliseconds
         
         
         #$consoleBuffer.WriteCell()
@@ -131,7 +130,7 @@ while ($true) {
         $consoleBuffer.WriteString(0, 13, "1111111111111111", $testCell.style, 30)
         $consoleBuffer.WriteString(0, 14, "1111111111111111", $testCell.style, 60)
         $consoleBuffer.WriteString(0, 15, "1111111111111111", $testCell.style, 30)
-        $consoleBuffer.WriteString(5, $drawCount, "xxxxxxxxxxxxxxx", $testStyle2, 50)
+        $consoleBuffer.WriteString(5, $drawCount, "xxxxxxxxxxxxxxx", $testCell2.style, 50)
         
         $consoleBuffer.Draw()
         $drawCount++
@@ -141,5 +140,5 @@ while ($true) {
     #Write-Host "Loop Count: " + $loopCount + $host.UI.RawUI.KeyAvailable
     
     $loopCount++
-    
+    #>
 }   
