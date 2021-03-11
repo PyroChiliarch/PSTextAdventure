@@ -27,11 +27,14 @@ Game
 using namespace System.Management.Automation.Host
 #https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshostrawuserinterface?view=powershellsdk-7.0.0
 
-#Import Modules
+#Import Core Modules
 using module ./Core/ANSIBuffer.psm1
 using module ./Core/Pause.psm1
 using module ./Core/Input.psm1
 using module ./Core/LogicEnvironment.psm1
+
+#Import Game Modules
+using module ./Game/GameMenu.psm1
 
 
 
@@ -71,33 +74,7 @@ Pause("Load Complete, Press any key to continue...")
 
 
 #Initialise GameEnvironments
-[LogicEnvironment]$gEnvironment = [LogicEnvironment]::new("default", $gScreen, $gInput, $gTime)
-
-
-<#
-[int]$consoleBufferDelay = 500
-[int]$consoleBufferLastTrigger = 0
-
-$loopCount = 0
-$drawCount = 0
-#>
-
-
-
-
-#Start Timing
-
-
-
-
-
-<#
-$testStyle = [ANSIBufferCell]::CreateStyle(0, 255, 0, 0, 0, 0, $true, $false)
-$testCell = [ANSIBufferCell]::new('T', $testStyle, 10)
-
-$testStyle2 = [ANSIBufferCell]::CreateStyle(255, 0, 0, 0, 0, 255, $true, $false)
-$testCell2 = [ANSIBufferCell]::new('T', $testStyle2, 10)
-#>
+[GameMenu]$gEnvironment = [GameMenu]::new("MainMenu", $gScreen, $gInput, $gTime)
 
 
 #Enter main loop
@@ -107,48 +84,4 @@ while ($true) {
         break
     }
 
-    <#
-    #Input Get
-    #Only get if key available to avoid halting program
-    $gameInput.UpdateInput()
-
-    if ($host.UI.RawUI.KeyAvailable -eq $true) {
-
-
-        if ($gameInput.currentKey.VirtualKeyCode -eq [KeyID]::none) {
-            continue
-        }
-        
-        if ($gameInput.currentKey.VirtualKeyCode -eq [KeyID]::space) {
-            break #$consoleBuffer.buffer[4, 4] = [ANSIBufferCell]::new('C',"$e[48;2;255;255;255;38;2;0;0;0mcccc$e[27m")
-        }
-
-    }
-
-
-    #Graphics Update
-    if ($gameTime.Elapsed.TotalMilliseconds -gt $consoleBufferLastTrigger + $consoleBufferDelay) {
-        $consoleBufferLastTrigger = $gameTime.Elapsed.TotalMilliseconds
-        
-        
-        #$consoleBuffer.WriteCell()
-        $consoleBuffer.Clear()
-        $consoleBuffer.WriteString(0, 0, $drawCount, $testCell.style, 10)
-        $consoleBuffer.WriteString(0, 10, "1111111111111111", $testCell.style, 60)
-        $consoleBuffer.WriteString(0, 11, "1111111111111111", $testCell.style, 30)
-        $consoleBuffer.WriteString(0, 12, "1111111111111111", $testCell.style, 60)
-        $consoleBuffer.WriteString(0, 13, "1111111111111111", $testCell.style, 30)
-        $consoleBuffer.WriteString(0, 14, "1111111111111111", $testCell.style, 60)
-        $consoleBuffer.WriteString(0, 15, "1111111111111111", $testCell.style, 30)
-        $consoleBuffer.WriteString(5, $drawCount, "xxxxxxxxxxxxxxx", $testCell2.style, 50)
-        
-        $consoleBuffer.Draw()
-        $drawCount++
-        #$consoleBuffer.Clear()
-    }
-    
-    #Write-Host "Loop Count: " + $loopCount + $host.UI.RawUI.KeyAvailable
-    
-    $loopCount++
-    #>
 }   
