@@ -150,6 +150,8 @@ class Input {
             $this.currentKey = $Global:Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown,IncludeKeyUp')
         }
 
+        $Global:Host.UI.RawUI.FlushInputBuffer() #Stop Movement after key release, Input can build up if held
+
         
     }
 }
