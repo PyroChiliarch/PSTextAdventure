@@ -7,8 +7,11 @@ using module ./Core/LogicEnvironment.psm1
 class GameMenu : LogicEnvironment {
 
     [int]$menuSelection
-    [string]$textStyle = [ANSIBufferCell]::CreateStyle(255, 0, 0, 0, 0, 0, $false, $false)
-    [string]$selectedTextStyle = [ANSIBufferCell]::CreateStyle(255, 0, 0, 0, 0, 0, $true, $false)
+    $menuItems = @('Quick Start', 'Advanced Start', 'Options', 'Exit')
+    $menuActions = @('defaultGame', '', '', 'prev')
+
+    [string]$textStyle = [ANSIBufferCell]::CreateStyle(0, 255, 0, 0, 0, 0, $false, $false)
+    [string]$selectedTextStyle = [ANSIBufferCell]::CreateStyle(0, 255, 0, 0, 0, 0, $true, $false)
 
 
     GameMenu ([string]$name, [ANSIBuffer]$gScreen, [Input]$gInput, [System.Diagnostics.Stopwatch]$gTime) {
@@ -26,26 +29,52 @@ class GameMenu : LogicEnvironment {
         $this.gScreen.Draw()
 
         $this.gInput.UpdateInput()
-        
+
         return $this.ReadInput()
     }
 
     [void] WriteScreen () {
 
+        #Draw all menu items
+        for ($n = 0; $n -lt $this.menuItems.count; $n++) {
 
-        $this.gScreen.WriteString(0, 0, "1:Start Game", $this.textStyle, 50)
-        $this.gScreen.WriteString(0, 1, "2:Exit", $this.textStyle, 50)
+            #Select style based on selection
+            [string]$currentStyle = ""
+            if ($this.menuSelection -eq $n) {
+                $currentStyle = $this.selectedTextStyle
+            } else {
+                $currentStyle = $this.textStyle
+            }
+
+            #Draw the menu item
+            $this.gScreen.WriteString(0, $n, $this.menuItems[$n], $currentStyle, 50)
+        }
+
+        
 
     }
 
     [string] ReadInput () {
-        if ($this.gInput.currentKey.VirtualKeyCode -eq [KeyID]::one) {
-            return "standardGame"
+
+
+
+
+        if ($this.gInput.currentKey.VirtualKeyCode -eq [KeyID]::down -and $this.gInput.currentKey.KeyDown) {
+            if ($this.menuSelection -lt ($this.menuItems.count - 1)) {
+                $this.menuSelection++
+            }
         }
 
-        if ($this.gInput.currentKey.VirtualKeyCode -eq [KeyID]::two) {
-            return "prev"
+        if ($this.gInput.currentKey.VirtualKeyCode -eq [KeyID]::up -and $this.gInput.currentKey.KeyDown) {
+            if ($this.menuSelection -gt 0) {
+                $this.menuSelection--
+            }
         }
+
+        if ($this.gInput.currentKey.VirtualKeyCode -eq [KeyID]::enter -and $this.gInput.currentKey.KeyDown) {
+            return $this.menuActions[$this.menuSelection]
+        }
+
         return ""
     }
 }
