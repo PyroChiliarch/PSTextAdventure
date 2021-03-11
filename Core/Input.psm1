@@ -11,7 +11,7 @@ enum KeyID {
     tab = 9
     numCentre = 12
     enter = 13
-    
+
     shift = 16
     ctrl = 17
     alt = 18
@@ -85,11 +85,11 @@ enum KeyID {
     num8 = 104
     num9 = 105
 
-    numStar = 106
-    numPlus = 107
-    numDash = 109
-    numPeriod = 110
-    numSlash = 111
+    numMultiply = 106
+    numAdd = 107
+    numSubtract = 109
+    numDecimal = 110
+    numDivide = 111
 
     F1 = 112
     F2 = 113
