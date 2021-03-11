@@ -7,8 +7,8 @@ using module ./Core/LogicEnvironment.psm1
 class GameMenu : LogicEnvironment {
 
     [int]$menuSelection
-    $menuItems = @('Quick Start', 'Advanced Start', 'Options', 'Exit')
-    $menuActions = @('defaultGame', '', '', 'prev')
+    $menuItems = @('Quick Start', 'Advanced Start', 'Load Game', 'Options', 'Exit')
+    $menuActions = @('defaultGame', '', '', '', 'prev')
 
     [string]$textStyle = [ANSIBufferCell]::CreateStyle(0, 255, 0, 0, 0, 0, $false, $false)
     [string]$selectedTextStyle = [ANSIBufferCell]::CreateStyle(0, 255, 0, 0, 0, 0, $true, $false)
