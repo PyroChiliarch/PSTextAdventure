@@ -80,8 +80,16 @@ Pause("Load Complete, Press any key to continue...")
 #Enter main loop
 while ($true) {
     
-    if ($gEnvironment.Update()) {
+    [ExitCode]$exitCode = $gEnvironment.Update()
+
+    if ($exitCode.nextEnvironment -ne "") {
+
+        if ($exitCode.nextEnvironment -eq "prev") {
+            break
+        }
+        
+        pause("Error : $($exitCode.nextEnvironment) : Attempt to enter unknown environment")
         break
     }
-
+    
 }   

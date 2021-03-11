@@ -44,10 +44,9 @@ class LogicEnvironment {
         $this.gTime = $gTime
     }
 
-    [bool] Update () {
-        #Return true to exit
+    [ExitCode] Update () {
         Pause("Error : $($this.name) : Update() Not Implemented")
-        return $true
+        return [ExitCode]::new("prev")
     }
 
 

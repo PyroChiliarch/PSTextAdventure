@@ -1,7 +1,15 @@
 using namespace System.Management.Automation.Host
 #https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshostrawuserinterface?view=powershellsdk-7.0.0
 
+<#
+General Use
 
+Call UpdateInput()
+Read currentKey
+
+Try to do both of these as quickly as possible
+
+#>
 
 enum KeyID {
 

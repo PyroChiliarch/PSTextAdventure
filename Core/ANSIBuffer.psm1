@@ -2,7 +2,14 @@ using namespace System.Management.Automation.Host
 #https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshostrawuserinterface?view=powershellsdk-7.0.0
 
 <#
-TODO
+General Use
+
+ANSIBuffer.Clear()  #Clear Buffer to default
+ANSIBuffer.Write*() #Write to the buffer
+ANSIBuffer.Draw()   #Draw the buffer on screen
+
+
+TODO Methods
 WriteBuffer
 WriteLog
 #>
@@ -74,6 +81,8 @@ class ANSIBuffer {
     [char]$e = [char]0x1b
 
     ANSIBuffer ([int]$width, [int]$height) {
+        #Defaults to Blank Black ClearCell
+
         [Console]::CursorVisible = $false
         $this.buffer = [ANSIBufferCell[,]]::new($width, $height)
         $this.height = $height
