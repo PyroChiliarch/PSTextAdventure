@@ -27,11 +27,10 @@ Game
 using namespace System.Management.Automation.Host
 #https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshostrawuserinterface?view=powershellsdk-7.0.0
 
-#For drawing to screen
+#Import Modules
 using module ./Core/ANSIBuffer.psm1
-
-#For batch like pausing
 using module ./Core/Pause.psm1
+using module ./Core/Input.psm1
 
 
 
@@ -67,14 +66,15 @@ Pause("Load Complete, Press any key to continue...")
 $consoleBuffer.Clear()
 
 
+[Input]$gameInput = [Input]::new()
 
 
 
-#Input Mapping
-#space = 32
 
-#Action Button
-$keyAction = 32
+
+
+
+
 
 
 #Start Timing
@@ -98,14 +98,17 @@ while ($true) {
     
     #Input Get
     #Only get if key available to avoid halting program
+    $gameInput.UpdateInput()
+
     if ($host.UI.RawUI.KeyAvailable -eq $true) {
-        [KeyInfo]$inputKey = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown,IncludeKeyUp')
-        if ($inputKey.KeyDown -eq $false) {
+
+
+        if ($gameInput.currentKey.VirtualKeyCode -eq [KeyID]::none) {
             continue
         }
 
-        if ($inputKey.VirtualKeyCode -eq $keyAction) {
-            #$consoleBuffer.buffer[4, 4] = [ANSIBufferCell]::new('C',"$e[48;2;255;255;255;38;2;0;0;0mcccc$e[27m")
+        if ($gameInput.currentKey.VirtualKeyCode -eq [KeyID]::space) {
+            break #$consoleBuffer.buffer[4, 4] = [ANSIBufferCell]::new('C',"$e[48;2;255;255;255;38;2;0;0;0mcccc$e[27m")
         }
 
     }
@@ -118,7 +121,7 @@ while ($true) {
         
         #$consoleBuffer.WriteCell()
         $consoleBuffer.Clear()
-        $consoleBuffer.WriteString(0, 0, "Hello", $testCell.style)
+        $consoleBuffer.WriteString(0, 0, $drawCount, $testCell.style)
         $consoleBuffer.Draw()
         $drawCount++
         #$consoleBuffer.Clear()

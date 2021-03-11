@@ -1,3 +1,8 @@
+using namespace System.Management.Automation.Host
+#https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshostrawuserinterface?view=powershellsdk-7.0.0
+
+
+
 enum KeyID {
 
     #Missing
@@ -6,6 +11,8 @@ enum KeyID {
     #Scroll Lock
     #Pause/Break
     #Caps lock
+
+    none = 0
 
     backspace = 8
     tab = 9
@@ -126,4 +133,23 @@ enum KeyID {
     backslash = 220
     rBracket = 221
     quote = 222
+
+}
+
+
+class Input {
+    [KeyInfo]$currentKey = [KeyInfo]::new(0, '-', 0, $false)
+
+    Input () {
+    }
+
+    [void] UpdateInput () {
+        if ($Global:Host.UI.RawUI.KeyAvailable -eq $false) {
+            $this.currentKey = [KeyInfo]::new(0, '-', 0, $false)
+        } else {
+            $this.currentKey = $Global:Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown,IncludeKeyUp')
+        }
+
+        
+    }
 }
