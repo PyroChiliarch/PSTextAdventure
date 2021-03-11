@@ -151,16 +151,12 @@ class ANSIBuffer {
         $stringArray = $string.ToCharArray()
 
         #Loop Cells
-        for ($x = $posX; $x -lt $posX + $string.Length; $x++) {
-            
+        for ($x = 0; $x -lt $string.Length; $x++) {
             #Check bounds
-            if ($x -gt 0 -and $x -lt $this.width) {
-                $this.buffer[$x, $posY] = [ANSIBufferCell]::new([char]$stringArray[$x], $style)
-                
-
+            if ($x -gt -1 -and $x -lt $this.width) {
+                $this.buffer[($x + $posX), $posY] = [ANSIBufferCell]::new([char]$stringArray[$x], $style)
             }
         }
-
     }
     
 
