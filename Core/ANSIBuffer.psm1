@@ -139,6 +139,29 @@ class ANSIBuffer {
         }
     }
     
+
+    [void] WriteString ([int]$posX, [int]$posY, [string]$string, [string]$style) {
+        #check out of bounds Y
+        #X check is done per cell in for loop
+        if ($posY -gt $this.height -or $posY -lt 0) {
+            return
+        }
+
+        #Change string to array
+        $stringArray = $string.ToCharArray()
+
+        #Loop Cells
+        for ($x = $posX; $x -lt $posX + $string.Length; $x++) {
+            
+            #Check bounds
+            if ($x -gt 0 -and $x -lt $this.width) {
+                $this.buffer[$x, $posY] = [ANSIBufferCell]::new([char]$stringArray[$x], $style)
+                
+
+            }
+        }
+
+    }
     
 
     

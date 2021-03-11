@@ -121,6 +121,7 @@ while ($true) {
         $consoleBuffer.Clear()
         $consoleBuffer.WriteCell(4, $drawCount, $testCell)
         $consoleBuffer.WriteCell($drawCount, 4, $testCell2)
+        $consoleBuffer.WriteString(0, 0, "Hello", $testCell2)
         $consoleBuffer.Draw()
         $drawCount++
         #$consoleBuffer.Clear()
