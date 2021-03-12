@@ -27,6 +27,9 @@ Game
 using namespace System.Management.Automation.Host
 #https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.host.pshostrawuserinterface?view=powershellsdk-7.0.0
 
+using namespace System.Collections
+#https://docs.microsoft.com/en-us/dotnet/api/system.collections?view=net-5.0
+
 #Import Core Modules
 using module ./Core/ANSIBuffer.psm1
 using module ./Core/Pause.psm1
@@ -74,13 +77,20 @@ Pause("Load Complete, Press any key to continue...")
 
 
 #Initialise GameEnvironments
-[GameMenu]$gEnvironment = [GameMenu]::new("MainMenu", $gScreen, $gInput, $gTime, [ExitCode]::new(""))
+[Stack]$environmentStack = [Stack]::new()
+[GameMenu]$geMainMenu = [GameMenu]::new("MainMenu", $gScreen, $gInput, $gTime, [ExitCode]::new(""))
+$environmentStack.push($geMainMenu)
+
+#[GameWorld]$gWorld = [GameWorld]::new("MainMenu", $gScreen, $gInput, $gTime, [ExitCode]::new(""))
+
 
 
 #Enter main loop
 while ($true) {
     
-    [ExitCode]$exitCode = $gEnvironment.Update()
+    #Get the current environment to update
+    $curEnv = $environmentStack.Peek()
+    [ExitCode]$exitCode = .Update()
 
     if ($exitCode.nextEnvironment -ne "") {
 
