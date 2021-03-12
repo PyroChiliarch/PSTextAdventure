@@ -13,7 +13,7 @@ class GameWorld : LogicEnvironment {
     [string]$guiStyle = [ANSIBufferCell]::CreateStyle(255, 255, 255, 0, 100, 100, $false, $false)
     
 
-    GameMenu ([string]$name, [ANSIBuffer]$gScreen, [Input]$gInput, [System.Diagnostics.Stopwatch]$gTime, [ExitCode]$prevExitCode) {
+    GameWorld ([string]$name, [ANSIBuffer]$gScreen, [Input]$gInput, [System.Diagnostics.Stopwatch]$gTime, [ExitCode]$prevExitCode) {
         $this.name = $name
         $this.gScreen = $gScreen
         $this.gInput = $gInput
@@ -33,7 +33,7 @@ class GameWorld : LogicEnvironment {
         #Act on input
         $this.gInput.UpdateInput()
         return $this.ReadInput() #Returns Exit code
-
+        
         #Update game world
     }
 
@@ -43,7 +43,7 @@ class GameWorld : LogicEnvironment {
 
     }
 
-    [string] ReadInput () {
+    [ExitCode] ReadInput () {
 
 
 

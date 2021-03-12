@@ -38,6 +38,7 @@ using module ./Core/LogicEnvironment.psm1
 
 #Import Game Modules
 using module ./Game/GameMenu.psm1
+using module ./Game/GameWorld.psm1
 
 
 
@@ -65,10 +66,16 @@ Pause("Load Complete, Press any key to continue...")
 
 
 
+#Tidy up a bit
+#hide cursor
+$host.UI.RawUI.WindowSize = [Size]::new(72, 42)
+[Console]::CursorVisible = $false 
+
+
 
 
 #Initialise Objects
-[ANSIBuffer]$gScreen = [ANSIBuffer]::new(30, 30)
+[ANSIBuffer]$gScreen = [ANSIBuffer]::new(70, 40)
 
 [Input]$gInput = [Input]::new()
 
@@ -81,7 +88,6 @@ Pause("Load Complete, Press any key to continue...")
 [GameMenu]$geMainMenu = [GameMenu]::new("MainMenu", $gScreen, $gInput, $gTime, [ExitCode]::new(""))
 $environmentStack.push($geMainMenu)
 
-#[GameWorld]$gWorld = [GameWorld]::new("MainMenu", $gScreen, $gInput, $gTime, [ExitCode]::new(""))
 
 
 
@@ -90,16 +96,35 @@ while ($true) {
     
     #Get the current environment to update
     $curEnv = $environmentStack.Peek()
-    [ExitCode]$exitCode = .Update()
+    [ExitCode]$exitCode = $curEnv.Update()
 
     if ($exitCode.nextEnvironment -ne "") {
 
+        #Return to previous env
+        #Exit if last one
         if ($exitCode.nextEnvironment -eq "prev") {
-            break
+            if ($environmentStack.Count -gt 1) {
+                $q = $environmentStack.Pop()
+                $q = $q
+                continue
+            } else {
+                Clear-Host
+                pause("Exiting...")
+                break
+            }
+            
         }
         
+        #Start a new game environment
+        if ($exitCode.nextEnvironment -eq "newGame") {
+            [GameWorld]$newEnv = [GameWorld]::new("newGame", $gScreen, $gInput, $gTime, $exitCode)
+            $environmentStack.Push($newEnv)
+            continue
+        }
+
         pause("Error : $($exitCode.nextEnvironment) : Attempt to enter unknown environment")
         break
     }
     
 }   
+

@@ -26,6 +26,10 @@ class ExitCode {
     ExitCode ([string]$nextEnvironment) {
         $this.nextEnvironment = $nextEnvironment
     }
+
+    [ExitCode] Clone () {
+        return [ExitCode]::new($this.nextEnvironment)
+    }
 }
 
 

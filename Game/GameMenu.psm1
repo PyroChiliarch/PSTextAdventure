@@ -7,8 +7,8 @@ using module ./Core/LogicEnvironment.psm1
 class GameMenu : LogicEnvironment {
 
     [int]$menuSelection
-    $menuItems = @('Quick Start', 'Advanced Start', 'Load Game', 'Options', 'Exit')
-    $menuActions = @('newGame', '', '', '', 'prev')
+    $menuItems = @('New Game', 'Connect 4', 'Load Game', 'Options', 'Exit')
+    $menuActions = @('newGame', 'con4', '', '', 'prev')
 
     [string]$textStyle = [ANSIBufferCell]::CreateStyle(0, 255, 0, 0, 0, 0, $false, $false)
     [string]$selectedTextStyle = [ANSIBufferCell]::CreateStyle(0, 255, 0, 0, 0, 0, $true, $false)
@@ -31,8 +31,7 @@ class GameMenu : LogicEnvironment {
         $this.gScreen.Draw()
 
         $this.gInput.UpdateInput()
-
-        return $this.ReadInput()
+        return $this.ReadInput() #Return input because this is where the exit code comes from
     }
 
     [void] WriteScreen () {
@@ -56,7 +55,7 @@ class GameMenu : LogicEnvironment {
 
     }
 
-    [string] ReadInput () {
+    [ExitCode] ReadInput () {
 
 
 
@@ -74,7 +73,7 @@ class GameMenu : LogicEnvironment {
         }
 
         if ($this.gInput.currentKey.VirtualKeyCode -eq [KeyID]::enter -and $this.gInput.currentKey.KeyDown) {
-            return $this.menuActions[$this.menuSelection]
+            return [ExitCode]::new($this.menuActions[$this.menuSelection])
         }
 
         return ""
