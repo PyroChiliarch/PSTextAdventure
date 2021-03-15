@@ -12,6 +12,9 @@ ANSIBuffer.Draw()   #Draw the buffer on screen
 TODO Methods
 WriteBuffer
 WriteLog
+
+Could possibly be changed to update only parts of screen that have changed
+Tag all the cells that are the same
 #>
 
 class ANSIBufferCell {
@@ -77,6 +80,7 @@ class ANSIBuffer {
     
     #Cell used when clearing buffer
     [ANSIBufferCell]$clearCell
+    [ANSIBufferCell[,]]$clearBuffer #Require to shave 700ms of draw time
 
     #ANSI clear string
     [char]$e = [char]0x1b
@@ -101,11 +105,20 @@ class ANSIBuffer {
     
     [void] Clear () {
         #Fill buffer is clearCell
-        for ($x = 0; $x -lt $this.width; $x++) {
-            for ($y = 0; $y -lt $this.height; $y++) {
-                $this.buffer[$x, $y] = $this.clearCell.Clone()
+        
+        #Create the clearBuffer if it doesn't exist yet
+        if ($null -eq $this.clearBuffer) {
+            
+            for ($x = 0; $x -lt $this.width; $x++) {
+                for ($y = 0; $y -lt $this.height; $y++) {
+                    $this.buffer[$x, $y] = $this.clearCell.Clone()
+                }
             }
+            $this.clearBuffer = $this.buffer.Clone()
         }
+
+        #Clear the buffer
+        $this.buffer = $this.clearBuffer.Clone()
     }
 
 

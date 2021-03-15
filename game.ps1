@@ -39,6 +39,7 @@ using module ./Core/LogicEnvironment.psm1
 #Import Game Modules
 using module ./Game/GameMenu.psm1
 using module ./Game/GameWorld.psm1
+using module ./Game/GameConnect4.psm1
 
 
 
@@ -122,6 +123,11 @@ while ($true) {
             continue
         }
 
+        if ($exitCode.nextEnvironment -eq "con4") {
+            [GameConnect4]$newEnv = [GameConnect4]::new("con4", $gScreen, $gInput, $gTime, $exitCode)
+            $environmentStack.Push($newEnv)
+            continue
+        }
         pause("Error : $($exitCode.nextEnvironment) : Attempt to enter unknown environment")
         break
     }
